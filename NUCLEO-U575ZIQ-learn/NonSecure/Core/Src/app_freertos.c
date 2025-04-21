@@ -51,6 +51,27 @@ const osThreadAttr_t defaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
+/* Definitions for LED1Task */
+osThreadId_t LED1TaskHandle;
+const osThreadAttr_t LED1Task_attributes = {
+  .name = "LED1Task",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = 128 * 4
+};
+/* Definitions for LED2Task */
+osThreadId_t LED2TaskHandle;
+const osThreadAttr_t LED2Task_attributes = {
+  .name = "LED2Task",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 128 * 4
+};
+/* Definitions for SerialTask */
+osThreadId_t SerialTaskHandle;
+const osThreadAttr_t SerialTask_attributes = {
+  .name = "SerialTask",
+  .priority = (osPriority_t) osPriorityAboveNormal,
+  .stack_size = 512 * 4
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -85,6 +106,15 @@ void MX_FREERTOS_Init(void) {
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
+  /* creation of LED1Task */
+  LED1TaskHandle = osThreadNew(StartLED1Task, NULL, &LED1Task_attributes);
+
+  /* creation of LED2Task */
+  LED2TaskHandle = osThreadNew(StartLED2Task, NULL, &LED2Task_attributes);
+
+  /* creation of SerialTask */
+  SerialTaskHandle = osThreadNew(StartSerialTask, NULL, &SerialTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -110,6 +140,60 @@ void StartDefaultTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END defaultTask */
+}
+
+/* USER CODE BEGIN Header_StartLED1Task */
+/**
+* @brief Function implementing the LED1Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartLED1Task */
+void StartLED1Task(void *argument)
+{
+  /* USER CODE BEGIN LED1Task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END LED1Task */
+}
+
+/* USER CODE BEGIN Header_StartLED2Task */
+/**
+* @brief Function implementing the LED2Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartLED2Task */
+void StartLED2Task(void *argument)
+{
+  /* USER CODE BEGIN LED2Task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END LED2Task */
+}
+
+/* USER CODE BEGIN Header_StartSerialTask */
+/**
+* @brief Function implementing the SerialTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartSerialTask */
+void StartSerialTask(void *argument)
+{
+  /* USER CODE BEGIN SerialTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END SerialTask */
 }
 
 /* Private application code --------------------------------------------------*/
