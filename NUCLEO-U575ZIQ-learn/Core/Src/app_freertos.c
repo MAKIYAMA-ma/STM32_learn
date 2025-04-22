@@ -155,7 +155,7 @@ void StartRedLEDTask(void *argument)
     /* Infinite loop */
     for(;;)
     {
-        HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1);
+        HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_2);
         osDelay(500);
     }
     /* USER CODE END RedLEDTask */
@@ -175,7 +175,7 @@ void StartBlueLEDTask(void *argument)
     for(;;)
     {
         HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_7);
-        osDelay(300);
+        osDelay(1000);
     }
     /* USER CODE END BlueLEDTask */
 }
