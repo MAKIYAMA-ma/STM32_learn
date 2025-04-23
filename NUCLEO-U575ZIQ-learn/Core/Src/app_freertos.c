@@ -151,14 +151,14 @@ void StartDefaultTask(void *argument)
 /* USER CODE END Header_StartRedLEDTask */
 void StartRedLEDTask(void *argument)
 {
-    /* USER CODE BEGIN RedLEDTask */
+  /* USER CODE BEGIN RedLEDTask */
     /* Infinite loop */
     for(;;)
     {
         HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_2);
         osDelay(500);
     }
-    /* USER CODE END RedLEDTask */
+  /* USER CODE END RedLEDTask */
 }
 
 /* USER CODE BEGIN Header_StartBlueLEDTask */
@@ -170,14 +170,14 @@ void StartRedLEDTask(void *argument)
 /* USER CODE END Header_StartBlueLEDTask */
 void StartBlueLEDTask(void *argument)
 {
-    /* USER CODE BEGIN BlueLEDTask */
+  /* USER CODE BEGIN BlueLEDTask */
     /* Infinite loop */
     for(;;)
     {
         HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_7);
         osDelay(1000);
     }
-    /* USER CODE END BlueLEDTask */
+  /* USER CODE END BlueLEDTask */
 }
 
 /* USER CODE BEGIN Header_StartSerialTask */
