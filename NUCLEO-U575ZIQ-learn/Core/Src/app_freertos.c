@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
 
 /* USER CODE END Includes */
 
@@ -189,13 +190,17 @@ void StartBlueLEDTask(void *argument)
 /* USER CODE END Header_StartSerialTask */
 void StartSerialTask(void *argument)
 {
-  /* USER CODE BEGIN SerialTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END SerialTask */
+    /* USER CODE BEGIN SerialTask */
+    uint32_t cycle_cnt = 0;
+
+    /* Infinite loop */
+    for(;;)
+    {
+        printf("dummy message from StartSerialTask[%lu]\n", cycle_cnt);
+        cycle_cnt = (cycle_cnt+1)%1000000;
+        osDelay(10);
+    }
+    /* USER CODE END SerialTask */
 }
 
 /* Private application code --------------------------------------------------*/
