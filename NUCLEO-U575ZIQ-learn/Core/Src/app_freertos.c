@@ -198,7 +198,7 @@ void StartSerialTask(void *argument)
     {
         printf("dummy message from StartSerialTask[%lu]\n", cycle_cnt);
         cycle_cnt = (cycle_cnt+1)%1000000;
-        osDelay(10);
+        osDelay(10*1000);
     }
     /* USER CODE END SerialTask */
 }
