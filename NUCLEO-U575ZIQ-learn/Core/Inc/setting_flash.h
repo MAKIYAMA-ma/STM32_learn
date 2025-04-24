@@ -17,7 +17,6 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include <stdio.h>
 #include <string.h>
 
 HAL_StatusTypeDef Settings_Write(const uint8_t *data, size_t len);
