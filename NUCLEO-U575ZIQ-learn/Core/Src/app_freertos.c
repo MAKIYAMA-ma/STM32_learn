@@ -190,7 +190,7 @@ void StartBlueLEDTask(void *argument)
 /* USER CODE END Header_StartSerialTask */
 void StartSerialTask(void *argument)
 {
-    /* USER CODE BEGIN SerialTask */
+  /* USER CODE BEGIN SerialTask */
     uint32_t cycle_cnt = 0;
 
     /* Infinite loop */
@@ -200,7 +200,7 @@ void StartSerialTask(void *argument)
         cycle_cnt = (cycle_cnt+1)%1000000;
         osDelay(10*1000);
     }
-    /* USER CODE END SerialTask */
+  /* USER CODE END SerialTask */
 }
 
 /* Private application code --------------------------------------------------*/
