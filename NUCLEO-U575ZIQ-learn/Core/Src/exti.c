@@ -1,4 +1,5 @@
 #include "main.h"
+#include "red_led_task.h"
 
 /**
   * @brief  EXTI line rising detection callback.
@@ -9,7 +10,8 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
 {
     if(GPIO_Pin == GPIO_PIN_13) {
         // on board button
-        printf("Button rising edge\n");
+        /* printf("Button rising edge\n"); */
+        ButtonPressed(1);
     }
 }
 

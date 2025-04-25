@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "red_led_task.h"
 
 /* USER CODE END Includes */
 
@@ -155,8 +156,7 @@ void StartRedLEDTask(void *argument)
     /* Infinite loop */
     for(;;)
     {
-        HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_2);
-        osDelay(500);
+        RedLEDTask();
     }
   /* USER CODE END RedLEDTask */
 }
