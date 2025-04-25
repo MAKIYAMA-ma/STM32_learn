@@ -35,6 +35,8 @@ extern "C" {
 #include "stm32u5xx_it.h"
 #include <stdio.h>
 #include "setting_flash.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

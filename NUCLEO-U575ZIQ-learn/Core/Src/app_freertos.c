@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "red_led_task.h"
+#include "spi_loop_task.h"
 
 /* USER CODE END Includes */
 
@@ -73,6 +74,13 @@ const osThreadAttr_t SerialTask_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 512 * 4
 };
+/* Definitions for SPILoopTask */
+osThreadId_t SPILoopTaskHandle;
+const osThreadAttr_t SPILoopTask_attributes = {
+  .name = "SPILoopTask",
+  .priority = (osPriority_t) osPriorityAboveNormal1,
+  .stack_size = 512 * 4
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -115,6 +123,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of SerialTask */
   SerialTaskHandle = osThreadNew(StartSerialTask, NULL, &SerialTask_attributes);
+
+  /* creation of SPILoopTask */
+  SPILoopTaskHandle = osThreadNew(StartSPILoopTask, NULL, &SPILoopTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -200,6 +211,21 @@ void StartSerialTask(void *argument)
         osDelay(10*1000);
     }
   /* USER CODE END SerialTask */
+}
+
+/* USER CODE BEGIN Header_StartSPILoopTask */
+/**
+* @brief Function implementing the SPILoopTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartSPILoopTask */
+void StartSPILoopTask(void *argument)
+{
+    /* USER CODE BEGIN SPILoopTask */
+    /* Infinite loop */
+    SPILoopTaskProc(argument);
+    /* USER CODE END SPILoopTask */
 }
 
 /* Private application code --------------------------------------------------*/

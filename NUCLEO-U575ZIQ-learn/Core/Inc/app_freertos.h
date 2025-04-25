@@ -58,6 +58,7 @@ extern osThreadId_t defaultTaskHandle;
 extern osThreadId_t RedLEDTaskHandle;
 extern osThreadId_t BlueLEDTaskHandle;
 extern osThreadId_t SerialTaskHandle;
+extern osThreadId_t SPILoopTaskHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -68,6 +69,7 @@ void StartDefaultTask(void *argument);
 void StartRedLEDTask(void *argument);
 void StartBlueLEDTask(void *argument);
 void StartSerialTask(void *argument);
+void StartSPILoopTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
