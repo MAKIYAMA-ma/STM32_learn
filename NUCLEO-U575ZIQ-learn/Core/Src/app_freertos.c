@@ -222,10 +222,10 @@ void StartSerialTask(void *argument)
 /* USER CODE END Header_StartSPILoopTask */
 void StartSPILoopTask(void *argument)
 {
-    /* USER CODE BEGIN SPILoopTask */
+  /* USER CODE BEGIN SPILoopTask */
     /* Infinite loop */
     SPILoopTaskProc(argument);
-    /* USER CODE END SPILoopTask */
+  /* USER CODE END SPILoopTask */
 }
 
 /* Private application code --------------------------------------------------*/
