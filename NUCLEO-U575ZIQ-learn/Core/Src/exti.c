@@ -15,6 +15,7 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
     }
 }
 
+#if 0
 /**
   * @brief  EXTI line falling detection callback.
   * @param  GPIO_Pin: Specifies the port pin connected to corresponding EXTI line.
@@ -27,3 +28,4 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
         printf("Button falling edge\n");
     }
 }
+#endif

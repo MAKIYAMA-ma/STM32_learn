@@ -19,8 +19,18 @@ extern "C" {
 #include "main.h"
 #include <string.h>
 
-HAL_StatusTypeDef Settings_Write(const uint8_t *data, size_t len);
-void Settings_Read(uint8_t *data, size_t len);
+typedef struct {
+    uint32_t version;
+    uint8_t  node_name[16];
+    uint8_t  red_led_int;
+    uint32_t checksum;
+} UserSetting_t;
+
+extern UserSetting_t g_user_setting;
+
+HAL_StatusTypeDef SaveUserSetting(UserSetting_t *setting);
+HAL_StatusTypeDef LoadUserSetting(UserSetting_t *setting);
+uint8_t InitUserSetting(void);
 
 #ifdef __cplusplus
 }

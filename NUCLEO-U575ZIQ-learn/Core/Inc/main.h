@@ -34,6 +34,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include "stm32u5xx_it.h"
 #include <stdio.h>
+#include "setting_flash.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
