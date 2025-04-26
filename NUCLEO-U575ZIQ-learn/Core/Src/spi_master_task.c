@@ -9,33 +9,45 @@
 
 extern SPI_HandleTypeDef hspi1;
 
-static uint8_t txBuf[SPI_BUF_SIZE] = "Hello from SPI DMA!";
-static uint8_t rxBuf[SPI_BUF_SIZE] = {0};
+static uint8_t mTxBuf[SPI_BUF_SIZE] = "Hello from SPI DMA!";
+static uint8_t mRxBuf[SPI_BUF_SIZE] = {0};
 
 void SPIMasterTaskProc(void *argument)
 {
-    spi1DoneSem = xSemaphoreCreateBinary();
-    if (spi1DoneSem == NULL) {
-        printf("Failed to create SPI Master semaphore\n");
+    spi1TxDoneSem = xSemaphoreCreateBinary();
+    spi1RxDoneSem = xSemaphoreCreateBinary();
+    if (spi1TxDoneSem == NULL || spi1RxDoneSem == NULL) {
+        uart_printf("Failed to create SPI Master semaphore\n");
         vTaskDelete(NULL);
     }
 
     for (;;) {
-        memset(rxBuf, 0, sizeof(rxBuf));
+        memset(mRxBuf, 0, sizeof(mRxBuf));
 
-        if (HAL_SPI_TransmitReceive_DMA(&hspi1, txBuf, rxBuf, SPI_BUF_SIZE) != HAL_OK) {
-            printf("SPI Master DMA start failed\n");
+        uart_printf("dmy");
+
+        if (HAL_SPI_Transmit_DMA(&hspi1, mTxBuf, SPI_BUF_SIZE) != HAL_OK) {
+            uart_printf("SPI Master DMA tx failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }
-        printf("SPI Master waiting\n");
 
-        if (xSemaphoreTake(spi1DoneSem, pdMS_TO_TICKS(1000)) == pdTRUE) {
-            printf("SPI Master rcv[%s]\n", rxBuf);
-        } else {
-            printf("SPI DMA timeout\n");
+        if (xSemaphoreTake(spi1TxDoneSem, portMAX_DELAY) != pdTRUE) {
+            uart_printf("SPI Master DMA tx timeout\n");
         }
 
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        if (HAL_SPI_Receive_DMA(&hspi1, mRxBuf, SPI_BUF_SIZE) != HAL_OK) {
+            uart_printf("SPI Master DMA rx failed\n");
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            continue;
+        }
+
+        if (xSemaphoreTake(spi1RxDoneSem, portMAX_DELAY) == pdTRUE) {
+            uart_printf("SPI Master DMA rcvd[%s]\n", mRxBuf);
+        } else {
+            uart_printf("SPI Master DMA rx timeout\n");
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

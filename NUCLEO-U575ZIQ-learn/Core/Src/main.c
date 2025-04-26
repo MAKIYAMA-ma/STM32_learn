@@ -52,6 +52,8 @@ DMA_HandleTypeDef handle_GPDMA1_Channel13;
 DMA_HandleTypeDef handle_GPDMA1_Channel12;
 
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef handle_GPDMA1_Channel11;
+DMA_HandleTypeDef handle_GPDMA1_Channel10;
 
 /* USER CODE BEGIN PV */
 
@@ -127,7 +129,7 @@ int main(void)
   /* USER CODE BEGIN BSP */
 
   /* -- Sample board code to send message over COM1 port ---- */
-  printf("Welcome to STM32 world !\n\r");
+  uart_printf("Welcome to STM32 world !\n\r");
 
   /* -- Sample board code to switch on leds ---- */
   BSP_LED_On(LED_GREEN);
@@ -250,6 +252,10 @@ static void MX_GPDMA1_Init(void)
   __HAL_RCC_GPDMA1_CLK_ENABLE();
 
   /* GPDMA1 interrupt Init */
+    HAL_NVIC_SetPriority(GPDMA1_Channel10_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel10_IRQn);
+    HAL_NVIC_SetPriority(GPDMA1_Channel11_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel11_IRQn);
     HAL_NVIC_SetPriority(GPDMA1_Channel12_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(GPDMA1_Channel12_IRQn);
     HAL_NVIC_SetPriority(GPDMA1_Channel13_IRQn, 5, 0);

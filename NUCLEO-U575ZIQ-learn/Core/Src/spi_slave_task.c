@@ -9,33 +9,46 @@
 
 extern SPI_HandleTypeDef hspi2;
 
-static uint8_t txBuf[SPI_BUF_SIZE] = "Reply from Slave!";
-static uint8_t rxBuf[SPI_BUF_SIZE] = {0};
+static uint8_t sTxBuf[SPI_BUF_SIZE] = "Reply from Slave!";
+static uint8_t sRxBuf[SPI_BUF_SIZE] = {0};
 
 void SPISlaveTaskProc(void *argument)
 {
-    spi2DoneSem = xSemaphoreCreateBinary();
-    if (spi2DoneSem == NULL) {
-        printf("Failed to create SPI Slave semaphore\n");
+    spi2TxDoneSem = xSemaphoreCreateBinary();
+    spi2RxDoneSem = xSemaphoreCreateBinary();
+    if (spi2TxDoneSem == NULL || spi2RxDoneSem == NULL) {
+        uart_printf("Failed to create SPI Slave semaphore\n");
         vTaskDelete(NULL);
     }
 
     for (;;) {
-        memset(rxBuf, 0, sizeof(rxBuf));
+        memset(sRxBuf, 0, sizeof(sRxBuf));
 
-        if (HAL_SPI_TransmitReceive_DMA(&hspi2, txBuf, rxBuf, SPI_BUF_SIZE) != HAL_OK) {
-            printf("SPI Slave DMA start failed\n");
+        uart_printf("dmy");
+
+        if (HAL_SPI_Receive_DMA(&hspi2, sRxBuf, SPI_BUF_SIZE) != HAL_OK) {
+            uart_printf("SPI Slave DMA rx failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }
-        printf("SPI Slave waiting\n");
 
-        if (xSemaphoreTake(spi2DoneSem, pdMS_TO_TICKS(5000)) == pdTRUE) {
-            printf("SPI Slave rcv[%s]\n", rxBuf);
+        if (xSemaphoreTake(spi2RxDoneSem, portMAX_DELAY) == pdTRUE) {
+            uart_printf("SPI Slave DMA rcvd[%s]\n", sRxBuf);
         } else {
-            printf("SPI DMA timeout\n");
+            uart_printf("SPI Slave DMA rx timeout\n");
         }
 
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        if (HAL_SPI_Transmit_DMA(&hspi2, sTxBuf, SPI_BUF_SIZE) != HAL_OK) {
+            uart_printf("SPI Slave DMA tx failed\n");
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            continue;
+        }
+
+        if (xSemaphoreTake(spi2TxDoneSem, portMAX_DELAY) != pdTRUE) {
+            uart_printf("SPI Slave DMA tx timeout\n");
+        }
+
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

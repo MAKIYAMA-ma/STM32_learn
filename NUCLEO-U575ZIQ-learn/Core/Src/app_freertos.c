@@ -25,6 +25,7 @@
 #include "red_led_task.h"
 #include "spi_master_task.h"
 #include "spi_slave_task.h"
+#include "spi_loop_task.h"
 
 /* USER CODE END Includes */
 
@@ -217,7 +218,7 @@ void StartSerialTask(void *argument)
     /* Infinite loop */
     for(;;)
     {
-        printf("dummy message from StartSerialTask[%lu]\n", cycle_cnt);
+        uart_printf("dummy message from StartSerialTask[%lu]\n", cycle_cnt);
         cycle_cnt = (cycle_cnt+1)%1000000;
         osDelay(10*1000);
     }
@@ -235,7 +236,16 @@ void StartSPIMasterTask(void *argument)
 {
   /* USER CODE BEGIN SPIMasterTask */
     /* Infinite loop */
+#if SPI_TEST_MODE == 0
+    SPILoopTaskProc(argument);
+#elif SPI_TEST_MODE == 1
     SPIMasterTaskProc(argument);
+#else
+    for(;;)
+    {
+        osDelay(1);
+    }
+#endif
   /* USER CODE END SPIMasterTask */
 }
 
@@ -250,7 +260,14 @@ void StartSPISlaveTask(void *argument)
 {
   /* USER CODE BEGIN SPISlaveTask */
     /* Infinite loop */
+#if SPI_TEST_MODE == 1
     SPISlaveTaskProc(argument);
+#else
+    for(;;)
+    {
+        osDelay(1);
+    }
+#endif
   /* USER CODE END SPISlaveTask */
 }
 

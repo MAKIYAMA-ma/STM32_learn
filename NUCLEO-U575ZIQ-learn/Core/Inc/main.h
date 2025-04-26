@@ -32,6 +32,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "config.h"
+#include "debug_uart.h"
 #include "stm32u5xx_it.h"
 #include <stdio.h>
 #include "setting_flash.h"

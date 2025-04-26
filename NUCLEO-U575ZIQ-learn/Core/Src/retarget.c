@@ -1,5 +1,6 @@
 #include "main.h"
 
+#if 0   // printfを使うための関数
 // これで printf() の出力先が UART1 になる
 int __io_putchar(int ch)
 {
@@ -14,3 +15,4 @@ int __io_getchar(void)
     HAL_UART_Receive(&huart1, &ch, 1, HAL_MAX_DELAY);
     return ch;
 }
+#endif

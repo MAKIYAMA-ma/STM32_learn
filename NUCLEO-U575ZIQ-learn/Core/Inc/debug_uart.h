@@ -1,15 +1,15 @@
 /* USER CODE BEGIN */
 /**
   ******************************************************************************
-  * @file           : spi_loop_task.h
-  * @brief          : Header for spi_loop_task.c file.
+  * @file           : debug_uart.h
+  * @brief          : Header for debug_uart.c file.
   *                   This file contains the common defines of the application.
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SPI_H
-#define __SPI_H
+#ifndef __DEBUG_UART_H
+#define __DEBUG_UART_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,17 +19,14 @@ extern "C" {
 #include "main.h"
 #include "app_freertos.h"
 
-extern SemaphoreHandle_t spi1TxDoneSem;
-extern SemaphoreHandle_t spi1RxDoneSem;
-extern SemaphoreHandle_t spi2TxDoneSem;
-extern SemaphoreHandle_t spi2RxDoneSem;
-
-void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi);
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi);
+void uart_init();
+void uart_printf(const char *fmt, ...);
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __SPI_H */
+#endif /* __DEBUG_UART_H */
 /* USER CODE END */

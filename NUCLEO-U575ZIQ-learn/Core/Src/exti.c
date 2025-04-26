@@ -10,7 +10,7 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
 {
     if(GPIO_Pin == GPIO_PIN_13) {
         // on board button
-        /* printf("Button rising edge\n"); */
+        /* uart_printf("Button rising edge\n"); */
         ButtonPressed(1);
     }
 }
@@ -25,7 +25,7 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
 {
     if(GPIO_Pin == GPIO_PIN_13) {
         // on board button
-        printf("Button falling edge\n");
+        uart_printf("Button falling edge\n");
     }
 }
 #endif
