@@ -8,8 +8,8 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SPI_LOOP_TASK_H
-#define __SPI_LOOP_TASK_H
+#ifndef __SPI_H
+#define __SPI_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,12 +19,14 @@ extern "C" {
 #include "main.h"
 #include "app_freertos.h"
 
+extern SemaphoreHandle_t spi1DoneSem;
+extern SemaphoreHandle_t spi2DoneSem;
+
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi);
-void SPILoopTaskProc(void *argument);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __SPI_LOOP_TASK_H */
+#endif /* __SPI_H */
 /* USER CODE END */

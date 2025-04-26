@@ -23,7 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "red_led_task.h"
-#include "spi_loop_task.h"
+#include "spi_master_task.h"
+#include "spi_slave_task.h"
 
 /* USER CODE END Includes */
 
@@ -72,14 +73,21 @@ osThreadId_t SerialTaskHandle;
 const osThreadAttr_t SerialTask_attributes = {
   .name = "SerialTask",
   .priority = (osPriority_t) osPriorityAboveNormal,
-  .stack_size = 512 * 4
+  .stack_size = 128 * 4
 };
-/* Definitions for SPILoopTask */
-osThreadId_t SPILoopTaskHandle;
-const osThreadAttr_t SPILoopTask_attributes = {
-  .name = "SPILoopTask",
+/* Definitions for SPIMasterTask */
+osThreadId_t SPIMasterTaskHandle;
+const osThreadAttr_t SPIMasterTask_attributes = {
+  .name = "SPIMasterTask",
   .priority = (osPriority_t) osPriorityAboveNormal1,
-  .stack_size = 512 * 4
+  .stack_size = 128 * 4
+};
+/* Definitions for SPISlaveTask */
+osThreadId_t SPISlaveTaskHandle;
+const osThreadAttr_t SPISlaveTask_attributes = {
+  .name = "SPISlaveTask",
+  .priority = (osPriority_t) osPriorityAboveNormal1,
+  .stack_size = 128 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -124,8 +132,11 @@ void MX_FREERTOS_Init(void) {
   /* creation of SerialTask */
   SerialTaskHandle = osThreadNew(StartSerialTask, NULL, &SerialTask_attributes);
 
-  /* creation of SPILoopTask */
-  SPILoopTaskHandle = osThreadNew(StartSPILoopTask, NULL, &SPILoopTask_attributes);
+  /* creation of SPIMasterTask */
+  SPIMasterTaskHandle = osThreadNew(StartSPIMasterTask, NULL, &SPIMasterTask_attributes);
+
+  /* creation of SPISlaveTask */
+  SPISlaveTaskHandle = osThreadNew(StartSPISlaveTask, NULL, &SPISlaveTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -213,19 +224,34 @@ void StartSerialTask(void *argument)
   /* USER CODE END SerialTask */
 }
 
-/* USER CODE BEGIN Header_StartSPILoopTask */
+/* USER CODE BEGIN Header_StartSPIMasterTask */
 /**
-* @brief Function implementing the SPILoopTask thread.
+* @brief Function implementing the SPIMasterTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartSPILoopTask */
-void StartSPILoopTask(void *argument)
+/* USER CODE END Header_StartSPIMasterTask */
+void StartSPIMasterTask(void *argument)
 {
-  /* USER CODE BEGIN SPILoopTask */
+  /* USER CODE BEGIN SPIMasterTask */
     /* Infinite loop */
-    SPILoopTaskProc(argument);
-  /* USER CODE END SPILoopTask */
+    SPIMasterTaskProc(argument);
+  /* USER CODE END SPIMasterTask */
+}
+
+/* USER CODE BEGIN Header_StartSPISlaveTask */
+/**
+* @brief Function implementing the SPISlaveTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartSPISlaveTask */
+void StartSPISlaveTask(void *argument)
+{
+  /* USER CODE BEGIN SPISlaveTask */
+    /* Infinite loop */
+    SPISlaveTaskProc(argument);
+  /* USER CODE END SPISlaveTask */
 }
 
 /* Private application code --------------------------------------------------*/
