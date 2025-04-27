@@ -33,11 +33,8 @@ void SPILoopTaskProc(void *argument)
     for (;;) {
         memset(rxBuf, 0, sizeof(rxBuf));
 
-#if 0
-        if (HAL_SPI_TransmitReceive(&hspi1, txBuf, rxBuf, SPI_BUF_SIZE, HAL_MAX_DELAY) != HAL_OK) {
-#else
+#if 1   // use DMA
         if (HAL_SPI_TransmitReceive_DMA(&hspi1, txBuf, rxBuf, SPI_BUF_SIZE) != HAL_OK) {
-#endif
             uart_printf("SPI DMA start failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
@@ -52,6 +49,19 @@ void SPILoopTaskProc(void *argument)
         } else {
             uart_printf("SPI DMA timeout\n");
         }
+#else
+        if (HAL_SPI_TransmitReceive(&hspi1, txBuf, rxBuf, SPI_BUF_SIZE, HAL_MAX_DELAY) == HAL_OK) {
+            if (memcmp(txBuf, rxBuf, SPI_BUF_SIZE) == 0) {
+                uart_printf("SPI loopback OK: %s\n", rxBuf);
+            } else {
+                uart_printf("SPI loopback failed!\n");
+            }
+        } else {
+            uart_printf("SPI Master failed\n");
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            continue;
+        }
+#endif
 
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
