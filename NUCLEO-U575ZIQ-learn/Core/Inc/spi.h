@@ -26,6 +26,7 @@ extern SemaphoreHandle_t spi2RxDoneSem;
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi);
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi);
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi);
 
 #ifdef __cplusplus
 }

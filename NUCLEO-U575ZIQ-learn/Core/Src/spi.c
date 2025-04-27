@@ -39,3 +39,12 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
+
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
+{
+    if (hspi->Instance == SPI1) {
+        uart_printf("SPI Master Error: 0x%lx\n", hspi->ErrorCode);
+    } else if (hspi->Instance == SPI2) {
+        uart_printf("SPI Slave Error: 0x%lx\n", hspi->ErrorCode);
+    }
+}

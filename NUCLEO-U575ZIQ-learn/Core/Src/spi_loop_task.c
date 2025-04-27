@@ -8,7 +8,7 @@
 
 extern SPI_HandleTypeDef hspi1;
 
-static uint8_t txBuf[SPI_BUF_SIZE] = "Hello from SPI DMA!";
+static uint8_t txBuf[SPI_BUF_SIZE] = "Test Message of SPI loopback";
 static uint8_t rxBuf[SPI_BUF_SIZE] = {0};
 
 static SemaphoreHandle_t spiDoneSem;
@@ -33,7 +33,11 @@ void SPILoopTaskProc(void *argument)
     for (;;) {
         memset(rxBuf, 0, sizeof(rxBuf));
 
+#if 0
+        if (HAL_SPI_TransmitReceive(&hspi1, txBuf, rxBuf, SPI_BUF_SIZE, HAL_MAX_DELAY) != HAL_OK) {
+#else
         if (HAL_SPI_TransmitReceive_DMA(&hspi1, txBuf, rxBuf, SPI_BUF_SIZE) != HAL_OK) {
+#endif
             uart_printf("SPI DMA start failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
