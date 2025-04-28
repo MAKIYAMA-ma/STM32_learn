@@ -1,9 +1,31 @@
 #include "main.h"
 #include <stdarg.h>
+#include <string.h>
+#include <stdlib.h>
 
 // リングバッファサイズ
 #define UART_TX_RINGBUF_SIZE   512
 #define UART_RX_LINEBUF_SIZE   128
+
+typedef void (*CommandCallback)(const char *params);
+typedef struct {
+    const char *commandStr;
+    CommandCallback callback;
+} ST_COMMAND_ENTRY;
+
+void HandleDbglvl(const uint8_t *params)
+{
+    int val = atoi(params);
+    if(val < 0) val = 0;
+    if(val > DBG_LVL_MAX) val = DBG_LVL_MAX;
+    g_user_setting.dbg_lvl = val;
+    SaveUserSetting(&g_user_setting);
+}
+
+static ST_COMMAND_ENTRY commands[] = {
+    {"DBGLVL", HandleDbglvl},
+};
+#define NUM_COMMANDS (sizeof(commands)/sizeof(commands[0]))
 
 // 送信用リングバッファ
 static uint8_t uartTxRingBuf[UART_TX_RINGBUF_SIZE];
@@ -13,17 +35,21 @@ static volatile uint16_t uartTxTail = 0;
 static volatile uint8_t uartTxBusy = 0;
 
 // 受信用リングバッファ
+static uint8_t uartRxByteBuf;
 static uint8_t uartRxLineBuf[UART_RX_LINEBUF_SIZE];
 static volatile uint16_t uartRxLineLen = 0;
 
 void uart_init()
 {
-    HAL_UART_Receive_IT(&huart1, uartRxLineBuf, 1); // 1バイトずつ受信開始
+    HAL_UART_Receive_IT(&huart1, &uartRxByteBuf, 1); // 1バイトずつ受信開始
 }
 
-void uart_printf(const char *fmt, ...)
+void uart_printf(EN_DBG_LEVEL lvl, const char *fmt, ...)
 {
     va_list args;
+
+    if(g_user_setting.dbg_lvl < (uint8_t)lvl) return;
+
     va_start(args, fmt);
     int len = vsnprintf(uartTxTmpBuf, sizeof(uartTxTmpBuf), fmt, args);
     va_end(args);
@@ -64,14 +90,23 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART1) {
-        uint8_t ch = uartRxLineBuf[0];
+        uint8_t ch = uartRxByteBuf;
 
         if (uartRxLineLen < UART_RX_LINEBUF_SIZE - 1) {
             uartRxLineBuf[uartRxLineLen++] = ch;
             if (ch == '\n') {
                 uartRxLineBuf[uartRxLineLen] = '\0'; // null terminate
                 // TODO 一行受信完了
-                uart_printf("Received Line: %s", uartRxLineBuf);
+                uart_printf(DBG_LVL_ERROR, "Received Line: %s", uartRxLineBuf);
+                for (int i = 0; i < NUM_COMMANDS; i++) {
+                    size_t cmdLen = strlen(commands[i].commandStr);
+                    if (strncmp((char *)uartRxLineBuf, commands[i].commandStr, cmdLen) == 0) {
+                        const char *paramPart = (char *)uartRxLineBuf + cmdLen;
+                        // スペースを飛ばすなどしたければここで追加もOK
+                        commands[i].callback(paramPart);
+                        return;
+                    }
+                }
                 uartRxLineLen = 0;
             }
         } else {
@@ -79,6 +114,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             uartRxLineLen = 0;
         }
 
-        HAL_UART_Receive_IT(huart, uartRxLineBuf, 1); // 次を受信
+        HAL_UART_Receive_IT(huart, &uartRxByteBuf, 1); // 次を受信
     }
 }

@@ -17,35 +17,35 @@ void SPISlaveTaskProc(void *argument)
     spi2TxDoneSem = xSemaphoreCreateBinary();
     spi2RxDoneSem = xSemaphoreCreateBinary();
     if (spi2TxDoneSem == NULL || spi2RxDoneSem == NULL) {
-        uart_printf("Failed to create SPI Slave semaphore\n");
+        uart_printf(DBG_LVL_ERROR, "Failed to create SPI Slave semaphore\n");
         vTaskDelete(NULL);
     }
 
     for (;;) {
         memset(sRxBuf, 0, sizeof(sRxBuf));
 
-        uart_printf("dmy");
+        uart_printf(DBG_LVL_DBG, "dmy");
 
         if (HAL_SPI_Receive_DMA(&hspi2, sRxBuf, SPI_BUF_SIZE) != HAL_OK) {
-            uart_printf("SPI Slave DMA rx failed\n");
+            uart_printf(DBG_LVL_ERROR, "SPI Slave DMA rx failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }
 
         if (xSemaphoreTake(spi2RxDoneSem, portMAX_DELAY) == pdTRUE) {
-            uart_printf("SPI Slave DMA rcvd[%s]\n", sRxBuf);
+            uart_printf(DBG_LVL_DBG, "SPI Slave DMA rcvd[%s]\n", sRxBuf);
         } else {
-            uart_printf("SPI Slave DMA rx timeout\n");
+            uart_printf(DBG_LVL_DBG, "SPI Slave DMA rx timeout\n");
         }
 
         if (HAL_SPI_Transmit_DMA(&hspi2, sTxBuf, SPI_BUF_SIZE) != HAL_OK) {
-            uart_printf("SPI Slave DMA tx failed\n");
+            uart_printf(DBG_LVL_ERROR, "SPI Slave DMA tx failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }
 
         if (xSemaphoreTake(spi2TxDoneSem, portMAX_DELAY) != pdTRUE) {
-            uart_printf("SPI Slave DMA tx timeout\n");
+            uart_printf(DBG_LVL_DBG, "SPI Slave DMA tx timeout\n");
         }
 
 

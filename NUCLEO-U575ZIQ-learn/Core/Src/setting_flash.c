@@ -16,6 +16,7 @@ UserSetting_t g_user_setting;
 const static UserSetting_t user_settig_def = {
     0x0123, // uint32_t version;
     "sam board", // uint8_t  node_name[16];
+    DBG_LVL_DBG, // uint8_t  dbg_lvl;
     0, // uint8_t  red_led_int;
     0x00, // uint32_t checksum;
 };

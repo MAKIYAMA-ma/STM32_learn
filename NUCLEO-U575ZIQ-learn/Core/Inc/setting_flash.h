@@ -22,6 +22,7 @@ extern "C" {
 typedef struct {
     uint32_t version;
     uint8_t  node_name[16];
+    uint8_t  dbg_lvl;
     uint8_t  red_led_int;
     uint32_t checksum;
 } UserSetting_t;

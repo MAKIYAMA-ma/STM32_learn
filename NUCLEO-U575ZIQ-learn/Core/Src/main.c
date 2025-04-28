@@ -117,7 +117,7 @@ int main(void)
   MX_SPI1_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-
+    uart_init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -129,7 +129,7 @@ int main(void)
   /* USER CODE BEGIN BSP */
 
   /* -- Sample board code to send message over COM1 port ---- */
-  uart_printf("Welcome to STM32 world !\n\r");
+  uart_printf(DBG_LVL_ERROR, "Welcome to STM32 world !\n\r");
 
   /* -- Sample board code to switch on leds ---- */
   BSP_LED_On(LED_GREEN);

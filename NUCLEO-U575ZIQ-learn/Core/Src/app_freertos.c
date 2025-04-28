@@ -218,7 +218,7 @@ void StartSerialTask(void *argument)
     /* Infinite loop */
     for(;;)
     {
-        uart_printf("dummy message from StartSerialTask[%lu]\n", cycle_cnt);
+        uart_printf(DBG_LVL_DBG, "dummy message from StartSerialTask[%lu]\n", cycle_cnt);
         cycle_cnt = (cycle_cnt+1)%1000000;
         osDelay(10*1000);
     }
