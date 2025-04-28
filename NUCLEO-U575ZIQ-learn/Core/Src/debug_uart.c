@@ -7,7 +7,7 @@
 #define UART_TX_RINGBUF_SIZE   512
 #define UART_RX_LINEBUF_SIZE   128
 
-typedef void (*CommandCallback)(const char *params);
+typedef void (*CommandCallback)(const uint8_t *params);
 typedef struct {
     const char *commandStr;
     CommandCallback callback;
@@ -15,7 +15,7 @@ typedef struct {
 
 void HandleDbglvl(const uint8_t *params)
 {
-    int val = atoi(params);
+    int val = atoi((char *)params);
     if(val < 0) val = 0;
     if(val > DBG_LVL_MAX) val = DBG_LVL_MAX;
     g_user_setting.dbg_lvl = val;
@@ -51,7 +51,7 @@ void uart_printf(EN_DBG_LEVEL lvl, const char *fmt, ...)
     if(g_user_setting.dbg_lvl < (uint8_t)lvl) return;
 
     va_start(args, fmt);
-    int len = vsnprintf(uartTxTmpBuf, sizeof(uartTxTmpBuf), fmt, args);
+    int len = vsnprintf((char *)uartTxTmpBuf, sizeof(uartTxTmpBuf), fmt, args);
     va_end(args);
 
     taskENTER_CRITICAL();
@@ -101,7 +101,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
                 for (int i = 0; i < NUM_COMMANDS; i++) {
                     size_t cmdLen = strlen(commands[i].commandStr);
                     if (strncmp((char *)uartRxLineBuf, commands[i].commandStr, cmdLen) == 0) {
-                        const char *paramPart = (char *)uartRxLineBuf + cmdLen;
+                        const uint8_t *paramPart = uartRxLineBuf + cmdLen;
                         // スペースを飛ばすなどしたければここで追加もOK
                         commands[i].callback(paramPart);
                         return;
