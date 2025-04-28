@@ -2,12 +2,16 @@
 //
 //! \file w5500.h
 //! \brief W5500 HAL Header File.
-//! \version 1.0.0.0
-//! \date 09/01/2013
+//! \version 1.0.0
+//! \date 2013/10/21
 //! \par  Revision history
-//!       <09-01-2013> 1st Release
+//!       <2015/02/05> Notice
+//!        The version history is not updated after this point.
+//!        Download the latest version directly from GitHub. Please visit the our GitHub repository for ioLibrary.
+//!        >> https://github.com/Wiznet/ioLibrary_Driver
+//!       <2013/10/21> 1st Release
 //! \author MidnightCow
-//! \copy
+//! \copyright
 //!
 //! Copyright (c)  2013, WIZnet Co., LTD.
 //! All rights reserved.
@@ -39,11 +43,21 @@
 //
 //*****************************************************************************
 
+//
+
 #ifndef  _W5500_H_
 #define  _W5500_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
-#include "Ethernet/wizchip_conf.h"
+#include "wizchip_conf.h"
+
+/// @cond DOXY_APPLY_CODE
+#if   (_WIZCHIP_ == 5500)
+/// @endcond
 
 #define _W5500_IO_BASE_              0x00000000
 
@@ -58,10 +72,29 @@
 #define WIZCHIP_OFFSET_INC(ADDR, N)    (ADDR + (N<<8)) //< Increase offset address
 
 
+///////////////////////////////////////
+// Definition For Legacy Chip Driver //
+///////////////////////////////////////
+#define IINCHIP_READ(ADDR)                WIZCHIP_READ(ADDR)               ///< The defined for legacy chip driver
+#define IINCHIP_WRITE(ADDR,VAL)           WIZCHIP_WRITE(ADDR,VAL)          ///< The defined for legacy chip driver
+#define IINCHIP_READ_BUF(ADDR,BUF,LEN)    WIZCHIP_READ_BUF(ADDR,BUF,LEN)   ///< The defined for legacy chip driver
+#define IINCHIP_WRITE_BUF(ADDR,BUF,LEN)   WIZCHIP_WRITE(ADDR,BUF,LEN)      ///< The defined for legacy chip driver
 
 //////////////////////////////
+//--------------------------  defgroup ---------------------------------
+/**
+ * @defgroup W5500 W5500
+ *
+ * @brief WHIZCHIP register defines and I/O functions of @b W5500.
+ *
+ * - @ref WIZCHIP_register : @ref Common_register_group and @ref Socket_register_group
+ * - @ref WIZCHIP_IO_Functions : @ref Basic_IO_function, @ref Common_register_access_function and @ref Socket_register_access_function
+ */
+ 
+ 
 /**
  * @defgroup WIZCHIP_register WIZCHIP register
+ * @ingroup W5500
  *
  * @brief WHIZCHIP register defines register group of @b W5500.
  *
@@ -69,9 +102,54 @@
  * - @ref Socket_register_group : \c SOCKET n register group
  */
 
+
+/**
+ * @defgroup WIZCHIP_IO_Functions WIZCHIP I/O functions
+ * @ingroup W5500
+ *
+ * @brief This supports the basic I/O functions for @ref WIZCHIP_register.
+ *
+ * - <b> Basic I/O function </b> \n
+ *   WIZCHIP_READ(), WIZCHIP_WRITE(), WIZCHIP_READ_BUF(), WIZCHIP_WRITE_BUF() \n\n
+ *
+ * - @ref Common_register_group <b>access functions</b> \n
+ * 	-# @b Mode \n
+ *    getMR(), setMR()
+ * 	-# @b Interrupt \n
+ *    getIR(), setIR(), getIMR(), setIMR(), getSIR(), setSIR(), getSIMR(), setSIMR(), getINTLEVEL(), setINTLEVEL()
+ * 	-# <b> Network Information </b> \n
+ *    getSHAR(), setSHAR(), getGAR(), setGAR(), getSUBR(), setSUBR(), getSIPR(), setSIPR()
+ * 	-# @b Retransmission \n
+ *    getRCR(), setRCR(), getRTR(), setRTR()
+ * 	-# @b PPPoE \n
+ *    getPTIMER(), setPTIMER(), getPMAGIC(), getPMAGIC(), getPSID(), setPSID(), getPHAR(), setPHAR(), getPMRU(), setPMRU()
+ * 	-# <b> ICMP packet </b>\n
+ *    getUIPR(), getUPORTR()
+ * 	-# @b etc. \n
+ *    getPHYCFGR(), setPHYCFGR(), getVERSIONR() \n\n
+ *
+ * - \ref Socket_register_group <b>access functions</b> \n
+ *   -# <b> SOCKET control</b> \n
+ *      getSn_MR(), setSn_MR(), getSn_CR(), setSn_CR(), getSn_IMR(), setSn_IMR(), getSn_IR(), setSn_IR()
+ *   -# <b> SOCKET information</b> \n
+ *      getSn_SR(), getSn_DHAR(), setSn_DHAR(), getSn_PORT(), setSn_PORT(), getSn_DIPR(), setSn_DIPR(), getSn_DPORT(), setSn_DPORT()
+ *      getSn_MSSR(), setSn_MSSR()
+ *   -# <b> SOCKET communication </b> \n
+ *      getSn_RXBUF_SIZE(), setSn_RXBUF_SIZE(), getSn_TXBUF_SIZE(), setSn_TXBUF_SIZE() \n
+ *      getSn_TX_RD(), getSn_TX_WR(), setSn_TX_WR() \n
+ *      getSn_RX_RD(), setSn_RX_RD(), getSn_RX_WR() \n
+ *      getSn_TX_FSR(), getSn_RX_RSR(), getSn_KPALVTR(), setSn_KPALVTR()
+ *   -# <b> IP header field </b> \n
+ *      getSn_FRAG(), setSn_FRAG(),  getSn_TOS(), setSn_TOS() \n
+ *      getSn_TTL(), setSn_TTL()
+ */
+
+
+
 /**
  * @defgroup Common_register_group Common register
  * @ingroup WIZCHIP_register
+ *
  * @brief Common register group\n
  * It set the basic for the networking\n
  * It set the configuration such as interrupt, network information, ICMP, etc.
@@ -79,14 +157,18 @@
  * @sa MR : Mode register.
  * @sa GAR, SUBR, SHAR, SIPR
  * @sa INTLEVEL, IR, IMR, SIR, SIMR : Interrupt.
- * @sa RTR, RCR : Data retransmission.
+ * @sa _RTR_, _RCR_ : Data retransmission.
  * @sa PTIMER, PMAGIC, PHAR, PSID, PMRU : PPPoE.
- * @sa UIPR, UPORT : ICMP message.
+ * @sa UIPR, UPORTR : ICMP message.
  * @sa PHYCFGR, VERSIONR : etc.
  */
+ 
+  
+ 
 /**
  * @defgroup Socket_register_group Socket register
  * @ingroup WIZCHIP_register
+ *
  * @brief Socket register group.\n
  * Socket register configures and control SOCKETn which is necessary to data communication.
  * @details
@@ -95,7 +177,28 @@
  * @sa Sn_MSSR, Sn_TOS, Sn_TTL, Sn_KPALVTR, Sn_FRAG : Internet protocol.
  * @sa Sn_RXBUF_SIZE, Sn_TXBUF_SIZE, Sn_TX_FSR, Sn_TX_RD, Sn_TX_WR, Sn_RX_RSR, Sn_RX_RD, Sn_RX_WR : Data communication
  */
+ 
+ 
+ 
+ /**
+ * @defgroup Basic_IO_function Basic I/O function
+ * @ingroup WIZCHIP_IO_Functions
+ * @brief These are basic input/output functions to read values from register or write values to register.
+ */
 
+/**
+ * @defgroup Common_register_access_function Common register access functions
+ * @ingroup WIZCHIP_IO_Functions
+ * @brief These are functions to access <b>common registers</b>.
+ */
+
+/**
+ * @defgroup Socket_register_access_function Socket register access functions
+ * @ingroup WIZCHIP_IO_Functions
+ * @brief These are functions to access <b>socket registers</b>.
+ */
+ 
+//------------------------------- defgroup end --------------------------------------------
 //----------------------------- W5500 Common Registers IOMAP -----------------------------
 /**
  * @ingroup Common_register_group
@@ -107,9 +210,9 @@
  * 		<tr>  <td>RST</td> <td>Reserved</td> <td>WOL</td> <td>PB</td> <td>PPPoE</td> <td>Reserved</td> <td>FARP</td> <td>Reserved</td> </tr>
  * </table>
  * - \ref MR_RST		 	: Reset
- * - \ref MR_WOL       		: Wake on LAN
- * - \ref MR_PB         	: Ping block
- * - \ref MR_PPPOE      	: PPPoE mode
+ * - \ref MR_WOL       	: Wake on LAN
+ * - \ref MR_PB         : Ping block
+ * - \ref MR_PPPOE      : PPPoE mode
  * - \ref MR_FARP			: Force ARP mode
  */
 #define MR                 (_W5500_IO_BASE_ + (0x0000 << 8) + (WIZCHIP_CREG_BLOCK << 3))
@@ -169,10 +272,10 @@
 /**
  * @ingroup Common_register_group
  * @brief Interrupt mask register(R/W)
- * @details @ref IMR is used to mask interrupts. Each bit of @ref IMR corresponds to each bit of @ref IR.
- * When a bit of @ref IMR is and the corresponding bit of @ref IR is  an interrupt will be issued. In other words,
- * if a bit of @ref IMR is  an interrupt will not be issued even if the corresponding bit of @ref IR is \n\n
- * Each bit of @ref IMR defined as the following.
+ * @details @ref _IMR_ is used to mask interrupts. Each bit of @ref _IMR_ corresponds to each bit of @ref IR.
+ * When a bit of @ref _IMR_ is and the corresponding bit of @ref IR is  an interrupt will be issued. In other words,
+ * if a bit of @ref _IMR_ is  an interrupt will not be issued even if the corresponding bit of @ref IR is \n\n
+ * Each bit of @ref _IMR_ defined as the following.
  * <table>
  * 		<tr>  <td>7</td> <td>6</td> <td>5</td> <td>4</td> <td>3</td> <td>2</td> <td>1</td> <td>0</td>   </tr>
  * 		<tr>  <td>IM_IR7</td> <td>IM_IR6</td> <td>IM_IR5</td> <td>IM_IR4</td> <td>Reserved</td> <td>Reserved</td> <td>Reserved</td> <td>Reserved</td> </tr>
@@ -182,7 +285,9 @@
  * - \ref IM_IR5 : PPPoE Close Interrupt Mask
  * - \ref IM_IR4 : Magic Packet Interrupt Mask
  */
-#define IMR                (_W5500_IO_BASE_ + (0x0016 << 8) + (WIZCHIP_CREG_BLOCK << 3))
+//M20150401 : Rename SYMBOE ( Re-define error in a compile) 
+//#define IMR                (_W5500_IO_BASE_ + (0x0016 << 8) + (WIZCHIP_CREG_BLOCK << 3))
+#define _IMR_                (_W5500_IO_BASE_ + (0x0016 << 8) + (WIZCHIP_CREG_BLOCK << 3))
 
 /**
  * @ingroup Common_register_group
@@ -204,20 +309,24 @@
 /**
  * @ingroup Common_register_group
  * @brief Timeout register address( 1 is 100us )(R/W)
- * @details @ref RTR configures the retransmission timeout period. The unit of timeout period is 100us and the default of @ref RTR is x07D0or 000
- * And so the default timeout period is 200ms(100us X 2000). During the time configured by @ref RTR, W5500 waits for the peer response
+ * @details @ref _RTR_ configures the retransmission timeout period. The unit of timeout period is 100us and the default of @ref _RTR_ is x07D0.
+ * And so the default timeout period is 200ms(100us X 2000). During the time configured by @ref _RTR_, W5500 waits for the peer response
  * to the packet that is transmitted by \ref Sn_CR (CONNECT, DISCON, CLOSE, SEND, SEND_MAC, SEND_KEEP command).
- * If the peer does not respond within the @ref RTR time, W5500 retransmits the packet or issues timeout.
+ * If the peer does not respond within the @ref _RTR_ time, W5500 retransmits the packet or issues timeout.
  */
-#define RTR                (_W5500_IO_BASE_ + (0x0019 << 8) + (WIZCHIP_CREG_BLOCK << 3))
+//M20150401 : Rename SYMBOE ( Re-define error in a compile)  
+//#define RTR                (_W5500_IO_BASE_ + (0x0019 << 8) + (WIZCHIP_CREG_BLOCK << 3))
+#define _RTR_                (_W5500_IO_BASE_ + (0x0019 << 8) + (WIZCHIP_CREG_BLOCK << 3))
 
 /**
  * @ingroup Common_register_group
  * @brief Retry count register(R/W)
- * @details @ref RCR configures the number of time of retransmission.
- * When retransmission occurs as many as ref RCR+1 Timeout interrupt is issued (@ref Sn_IR[TIMEOUT] = .
+ * @details @ref _RCR_ configures the number of time of retransmission.
+ * When retransmission occurs as many as ref _RCR_+1 Timeout interrupt is issued (@ref Sn_IR_TIMEOUT = '1').
  */
-#define RCR                (_W5500_IO_BASE_ + (0x001B << 8) + (WIZCHIP_CREG_BLOCK << 3))
+//M20150401 : Rename SYMBOE ( Re-define error in a compile)
+//#define RCR                (_W5500_IO_BASE_ + (0x001B << 8) + (WIZCHIP_CREG_BLOCK << 3))  
+#define _RCR_                (_W5500_IO_BASE_ + (0x001B << 8) + (WIZCHIP_CREG_BLOCK << 3))
 
 /**
  * @ingroup Common_register_group
@@ -258,7 +367,7 @@
  * @ingroup Common_register_group
  * @brief Unreachable IP register address in UDP mode(R)
  * @details W5500 receives an ICMP packet(Destination port unreachable) when data is sent to a port number
- * which socket is not open and @ref UNREACH bit of @ref IR becomes and @ref UIPR & @ref UPORT indicates
+ * which socket is not open and @ref IR_UNREACH bit of @ref IR becomes and @ref UIPR & @ref UPORTR indicates
  * the destination IP address & port number respectively.
  */
 #define UIPR               (_W5500_IO_BASE_ + (0x0028 << 8) + (WIZCHIP_CREG_BLOCK << 3))
@@ -267,7 +376,7 @@
  * @ingroup Common_register_group
  * @brief Unreachable Port register address in UDP mode(R)
  * @details W5500 receives an ICMP packet(Destination port unreachable) when data is sent to a port number
- * which socket is not open and @ref UNREACH bit of @ref IR becomes and @ref UIPR & @ref UPORT
+ * which socket is not open and @ref IR_UNREACH bit of @ref IR becomes and @ref UIPR & @ref UPORTR
  * indicates the destination IP address & port number respectively.
  */
 #define UPORTR              (_W5500_IO_BASE_ + (0x002C << 8) + (WIZCHIP_CREG_BLOCK << 3))
@@ -395,7 +504,7 @@
  * @ingroup Socket_register_group
  * @brief source port register(R/W)
  * @details @ref Sn_PORT configures the source port number of Socket n.
- * It is valid when Socket n is used in TCP/UPD mode. It should be set before OPEN command is ordered.
+ * It is valid when Socket n is used in TCP/UDP mode. It should be set before OPEN command is ordered.
  */
 #define Sn_PORT(N)         (_W5500_IO_BASE_ + (0x0004 << 8) + (WIZCHIP_SREG_BLOCK(N) << 3))
 
@@ -411,8 +520,8 @@
  * @ingroup Socket_register_group
  * @brief Peer IP register address(R/W)
  * @details @ref Sn_DIPR configures or indicates the destination IP address of Socket n. It is valid when Socket n is used in TCP/UDP mode.
- * In TCP client mode, it configures an IP address of �TCP serverbefore CONNECT command.
- * In TCP server mode, it indicates an IP address of �TCP clientafter successfully establishing connection.
+ * In TCP client mode, it configures an IP address of TCP serverbefore CONNECT command.
+ * In TCP server mode, it indicates an IP address of TCP clientafter successfully establishing connection.
  * In UDP mode, it configures an IP address of peer to be received the UDP packet by SEND or SEND_MAC command.
  */
 #define Sn_DIPR(N)         (_W5500_IO_BASE_ + (0x000C << 8) + (WIZCHIP_SREG_BLOCK(N) << 3))
@@ -421,8 +530,8 @@
  * @ingroup Socket_register_group
  * @brief Peer port register address(R/W)
  * @details @ref Sn_DPORT configures or indicates the destination port number of Socket n. It is valid when Socket n is used in TCP/UDP mode.
- * In �TCP clientmode, it configures the listen port number of �TCP serverbefore CONNECT command.
- * In �TCP Servermode, it indicates the port number of TCP client after successfully establishing connection.
+ * In TCP clientmode, it configures the listen port number of TCP serverbefore CONNECT command.
+ * In TCP Servermode, it indicates the port number of TCP client after successfully establishing connection.
  * In UDP mode, it configures the port number of peer to be transmitted the UDP packet by SEND/SEND_MAC command.
  */
 #define Sn_DPORT(N)        (_W5500_IO_BASE_ + (0x0010 << 8) + (WIZCHIP_SREG_BLOCK(N) << 3))
@@ -636,7 +745,7 @@
 /**
  * @brief Get the destination unreachable message in UDP sending.
  * @details When receiving the ICMP (Destination port unreachable) packet, this bit is set as 
- * When this bit is  Destination Information such as IP address and Port number may be checked with the corresponding @ref UIPR & @ref UPORT.
+ * When this bit is  Destination Information such as IP address and Port number may be checked with the corresponding @ref UIPR & @ref UPORTR.
  */
 #define IR_UNREACH                   0x40
 
@@ -726,7 +835,7 @@
  * 1 : Enable No Delayed ACK option\n
  * This bit is applied only during TCP mode (P[3:0] = 001.\n
  * When this bit is  It sends the ACK packet without delay as soon as a Data packet is received from a peer.\n
- * When this bit is  It sends the ACK packet after waiting for the timeout time configured by @ref RTR.
+ * When this bit is  It sends the ACK packet after waiting for the timeout time configured by @ref _RTR_.
  */
 #define Sn_MR_ND                     0x20
 
@@ -745,7 +854,7 @@
  */
 #define Sn_MR_MACRAW                 0x04
 
-//#define Sn_MR_IPRAW                  0x03     /**< IP LAYER RAW SOCK */
+#define Sn_MR_IPRAW                  0x03     /**< IP LAYER RAW SOCK */
 
 /**
  * @brief UDP
@@ -823,53 +932,53 @@
  * The table below shows the value of @ref Sn_SR corresponding to @ref Sn_MR.\n
  * <table>
  *   <tr>  <td>\b Sn_MR (P[3:0])</td> <td>\b Sn_SR</td>            		 </tr>
- *   <tr>  <td>Sn_MR_CLOSE  (000</td> <td></td>         	   		 </tr>
- *   <tr>  <td>Sn_MR_TCP  (001</td> <td>SOCK_INIT (0x13)</td>  		 </tr>
- *   <tr>  <td>Sn_MR_UDP  (010</td>  <td>SOCK_UDP (0x22)</td>  		 </tr>
- *   <tr>  <td>S0_MR_MACRAW  (100</td>  <td>SOCK_MACRAW (0x02)</td>  </tr>
+ *   <tr>  <td>Sn_MR_CLOSE  (000)</td> <td></td>         	   		 </tr>
+ *   <tr>  <td>Sn_MR_TCP  (001)</td> <td>SOCK_INIT (0x13)</td>  		 </tr>
+ *   <tr>  <td>Sn_MR_UDP  (010)</td>  <td>SOCK_UDP (0x22)</td>  		 </tr>
+ *   <tr>  <td>S0_MR_MACRAW  (100)</td>  <td>SOCK_MACRAW (0x02)</td>  </tr>
  * </table>
  */
 #define Sn_CR_OPEN                   0x01
 
 /**
  * @brief Wait connection request in TCP mode(Server mode)
- * @details This is valid only in TCP mode (Sn_MR(P3:P0) = @ref Sn_MR_TCP).
- * In this mode, Socket n operates as a TCP server and waits for  connection-request (SYN packet) from any TCP client
- * The @ref Sn_SR changes the state from SOCK_INIT to SOCKET_LISTEN.
- * When a TCP client connection request is successfully established,
- * the @ref Sn_SR changes from @ref SOCK_LISTEN to @ref SOCK_ESTABLISHED and the Sn_IR(0) becomes
- * But when a �TCP client connection request is failed, Sn_IR(3) becomes and the status of @ref Sn_SR changes to @ref SOCK_CLOSED.
+ * @details This is valid only in TCP mode (\ref Sn_MR(P3:P0) = \ref Sn_MR_TCP).
+ * In this mode, Socket n operates as a TCP serverand waits for  connection-request (SYN packet) from any TCP client
+ * The @ref Sn_SR changes the state from \ref SOCK_INIT to \ref SOCKET_LISTEN.
+ * When a TCP clientconnection request is successfully established,
+ * the @ref Sn_SR changes from SOCK_LISTEN to SOCK_ESTABLISHED and the @ref Sn_IR(0) becomes 
+ * But when a TCP clientconnection request is failed, @ref Sn_IR(3) becomes and the status of @ref Sn_SR changes to SOCK_CLOSED.
  */
 #define Sn_CR_LISTEN                 0x02
 
 /**
  * @brief Send connection request in TCP mode(Client mode)
- * @details  To connect, a connect-request (SYN packet) is sent to <b>TCP server</b> configured by @ref Sn_DIPR & Sn_DPORT (destination address & port).
+ * @details  To connect, a connect-request (SYN packet) is sent to <b>TCP server</b>configured by @ref Sn_DIPR & Sn_DPORT(destination address & port).
  * If the connect-request is successful, the @ref Sn_SR is changed to @ref SOCK_ESTABLISHED and the Sn_IR(0) becomes \n\n
  * The connect-request fails in the following three cases.\n
- * 1. When a @b ARPTO occurs (@ref Sn_IR[3] = 1) because destination hardware address is not acquired through the ARP-process.\n
- * 2. When a @b SYN/ACK packet is not received and @b TCPTO (Sn_IR(3) = 1)\n
+ * 1. When a @b ARPTO occurs (@ref Sn_IR[3] =  ) because destination hardware address is not acquired through the ARP-process.\n
+ * 2. When a @b SYN/ACK packet is not received and @b TCPTO (Sn_IR(3) =  )\n
  * 3. When a @b RST packet is received instead of a @b SYN/ACK packet. In these cases, @ref Sn_SR is changed to @ref SOCK_CLOSED.
- * @note This is valid only in TCP mode and operates when Socket n acts as b>TCP client</b>
+ * @note This is valid only in TCP mode and operates when Socket n acts as <b>TCP client</b>
  */
 #define Sn_CR_CONNECT                0x04
 
 /**
  * @brief Send closing request in TCP mode
- * @details Regardless of <b>TCP server</b>or <b>TCP client</b> the DISCON command processes the disconnect-process <b>Active close</b>or b>Passive close</b>.\n
+ * @details Regardless of <b>TCP server</b>or <b>TCP client</b> the DISCON command processes the disconnect-process (b>Active close</b>or <b>Passive close</b>.\n
  * @par Active close
  * it transmits disconnect-request(FIN packet) to the connected peer\n
  * @par Passive close
  * When FIN packet is received from peer, a FIN packet is replied back to the peer.\n
  * @details When the disconnect-process is successful (that is, FIN/ACK packet is received successfully), @ref Sn_SR is changed to @ref SOCK_CLOSED.\n
- * Otherwise, TCPTO occurs (Sn_IR(3)=)= and then @ref Sn_SR is changed to @ref SOCK_CLOSED.
+ * Otherwise, TCPTO occurs (\ref Sn_IR(3)='1') and then @ref Sn_SR is changed to @ref SOCK_CLOSED.
  * @note Valid only in TCP mode.
  */
 #define Sn_CR_DISCON                 0x08
 
 /**
  * @brief Close socket
- * @details @ref Sn_SR is changed to @ref SOCK_CLOSED.
+ * @details Sn_SR is changed to @ref SOCK_CLOSED.
  */
 #define Sn_CR_CLOSE                  0x10
 
@@ -885,7 +994,7 @@
  * @brief Send data with MAC address, so without ARP process
  * @details The basic operation is same as SEND.\n
  * Normally SEND transmits data after destination hardware address is acquired by the automatic ARP-process(Address Resolution Protocol).\n
- * But @ref SEND_MAC transmits data without the automatic ARP-process.\n
+ * But SEND_MAC transmits data without the automatic ARP-process.\n
  * In this case, the destination hardware address is acquired from @ref Sn_DHAR configured by host, instead of APR-process.
  * @note Valid only in UDP mode.
  */
@@ -941,24 +1050,24 @@
 /* Sn_SR values */
 /**
  * @brief Closed
- * @details This indicates that Socket n is released.\N
+ * @details This indicates that Socket n is released.\n
  * When DICON, CLOSE command is ordered, or when a timeout occurs, it is changed to @ref SOCK_CLOSED regardless of previous status.
  */
 #define SOCK_CLOSED                  0x00
 
 /**
  * @brief Initiate state
- * @details This indicates Socket n is opened with TCP mode.\N
- * It is changed to @ref SOCK_INIT when Sn_MR(P[3:0]) = 001 and OPEN command is ordered.\N
+ * @details This indicates Socket n is opened with TCP mode.\n
+ * It is changed to @ref SOCK_INIT when @ref Sn_MR(P[3:0]) = 001 and OPEN command is ordered.\n
  * After @ref SOCK_INIT, user can use LISTEN /CONNECT command.
  */
 #define SOCK_INIT                    0x13
 
 /**
  * @brief Listen state
- * @details This indicates Socket n is operating as <b>TCP server</b> mode and waiting for connection-request (SYN packet) from a peer <b>TCP client</b>.\n
- * It will change to @ref SOCK_ESTABLISHED when the connection-request is successfully accepted.\n
- * Otherwise it will change to @ref SOCK_CLOSED after TCPTO occurred (Sn_IR(TIMEOUT) = 1).
+ * @details This indicates Socket n is operating as <b>TCP server</b>mode and waiting for connection-request (SYN packet) from a peer <b>TCP client</b>.\n
+ * It will change to @ref SOCK_ESTALBLISHED when the connection-request is successfully accepted.\n
+ * Otherwise it will change to @ref SOCK_CLOSED after TCPTO @ref Sn_IR(TIMEOUT) = '1') is occurred.
  */
 #define SOCK_LISTEN                  0x14
 
@@ -967,7 +1076,7 @@
  * @details This indicates Socket n sent the connect-request packet (SYN packet) to a peer.\n
  * It is temporarily shown when @ref Sn_SR is changed from @ref SOCK_INIT to @ref SOCK_ESTABLISHED by CONNECT command.\n
  * If connect-accept(SYN/ACK packet) is received from the peer at SOCK_SYNSENT, it changes to @ref SOCK_ESTABLISHED.\n
- * Otherwise, it changes to @ref SOCK_CLOSED after TCPTO (@ref Sn_IR[TIMEOUT] = 1) is occurred.
+ * Otherwise, it changes to @ref SOCK_CLOSED after TCPTO (@ref Sn_IR[TIMEOUT] = '1') is occurred.
  */
 #define SOCK_SYNSENT                 0x15
 
@@ -975,14 +1084,14 @@
  * @brief Connection state
  * @details It indicates Socket n successfully received the connect-request packet (SYN packet) from a peer.\n
  * If socket n sends the response (SYN/ACK  packet) to the peer successfully,  it changes to @ref SOCK_ESTABLISHED. \n
- * If not, it changes to @ref SOCK_CLOSED after timeout occurs (@ref Sn_IR[TIMEOUT] = 1).
+ * If not, it changes to @ref SOCK_CLOSED after timeout (@ref Sn_IR[TIMEOUT] = '1') is occurred.
  */
 #define SOCK_SYNRECV                 0x16
 
 /**
  * @brief Success to connect
  * @details This indicates the status of the connection of Socket n.\n
- * It changes to @ref SOCK_ESTABLISHED when the <b>TCP SERVER</b> processed the SYN packet from the <b>TCP CLIENT</b> during @ref SOCK_LISTEN, or
+ * It changes to @ref SOCK_ESTABLISHED when the <b>TCP SERVER</b>processed the SYN packet from the <b>TCP CLIENT</b>during @ref SOCK_LISTEN, or
  * when the CONNECT command is successful.\n
  * During @ref SOCK_ESTABLISHED, DATA packet can be transferred using SEND or RECV command.
  */
@@ -1023,24 +1132,24 @@
 /**
  * @brief Closing state
  * @details This indicates Socket n is waiting for the response (FIN/ACK packet) to the disconnect-request (FIN packet) by passive-close.\n
- * It changes to @ref SOCK_CLOSED when Socket n received the response successfully, or when timeout occurs  (@ref Sn_IR[TIMEOUT] = 1).
+ * It changes to @ref SOCK_CLOSED when Socket n received the response successfully, or when timeout(@ref Sn_IR[TIMEOUT] = '1') is occurred.
  */
 #define SOCK_LAST_ACK                0x1D
 
 /**
  * @brief UDP socket
- * @details This indicates Socket n is opened in UDP mode(Sn_MR(P[3:0]) = 010).\n
- * It changes to @ref SOCK_UPD when Sn_MR(P[3:0] = 010) and OPEN command is ordered.\n
+ * @details This indicates Socket n is opened in UDP mode(@ref Sn_MR(P[3:0]) = '010').\n
+ * It changes to SOCK_UDP when @ref Sn_MR(P[3:0]) = '010' and @ref Sn_CR_OPEN command is ordered.\n
  * Unlike TCP mode, data can be transfered without the connection-process.
  */
 #define SOCK_UDP                     0x22
 
-//#define SOCK_IPRAW                   0x32     /**< IP raw mode socket */
+#define SOCK_IPRAW                   0x32     /**< IP raw mode socket */
 
 /**
  * @brief MAC raw mode socket
- * @details This indicates Socket 0 is opened in MACRAW mode (S0_MR(P[3:0]) = 100) and is valid only in Socket 0.\n
- * It changes to @ref SOCK_MACRAW when S0_MR(P[3:0] = 100) and OPEN command is ordered.\n
+ * @details This indicates Socket 0 is opened in MACRAW mode (S0_MR(P[3:0]) = 100and is valid only in Socket 0.\n
+ * It changes to SOCK_MACRAW when S0_MR(P[3:0] = 100and OPEN command is ordered.\n
  * Like UDP mode socket, MACRAW mode Socket 0 can transfer a MAC packet (Ethernet frame) without the connection-process.
  */
 #define SOCK_MACRAW                  0x42
@@ -1071,7 +1180,11 @@
  * \sa WIZCHIP_READ(), WIZCHIP_WRITE(), WIZCHIP_READ_BUF(), WIZCHIP_WRITE_BUF()
  * \sa WIZCHIP_CRITICAL_EXIT()
  */
-void     WIZCHIP_CRITICAL_ENTER(void);
+#define WIZCHIP_CRITICAL_ENTER()    WIZCHIP.CRIS._enter()
+
+#ifdef _exit
+#undef _exit
+#endif
 
 /**
  * @brief Exit a critical section
@@ -1084,65 +1197,8 @@ void     WIZCHIP_CRITICAL_ENTER(void);
  * @sa WIZCHIP_READ(), WIZCHIP_WRITE(), WIZCHIP_READ_BUF(), WIZCHIP_WRITE_BUF()
  * @sa WIZCHIP_CRITICAL_ENTER()
  */
-void     WIZCHIP_CRITICAL_EXIT(void);
+#define WIZCHIP_CRITICAL_EXIT()     WIZCHIP.CRIS._exit()
 
-/**
- * @defgroup WIZCHIP_IO_Functions WIZCHIP I/O functions
- *
- * This supports the basic I/O functions for @ref WIZCHIP_register.
- *
- * - <b> Basic I/O function </b> \n
- *   WIZCHIP_READ(), WIZCHIP_WRITE(), WIZCHIP_READ_BUF(), WIZCHIP_WRITE_BUF() \n\n
- *
- * - @ref Common_register_group <b>access functions</b> \n
- * 	-# @b Mode \n
- *    getMR(), setMR()
- * 	-# @b Interrupt \n
- *    getIR(), setIR(), getIMR(), setIMR(), getSIR(), setSIR(), getSIMR(), setSIMR(), getINTLEVEL(), setINTLEVEL()
- * 	-# <b> Network Information </b> \n
- *    getSHAR(), setSHAR(), getGAR(), setGAR(), getSUBR(), setSUBR(), getSIPR(), setSIPR()
- * 	-# @b Retransmission \n
- *    getRCR(), setRCR(), getRTR(), setRTR()
- * 	-# @b PPPoE \n
- *    getPTIMER(), setPTIMER(), getPMAGIC(), getPMAGIC(), getPSID(), setPSID(), getPHAR(), setPHAR(), getPMRU(), setPMRU()
- * 	-# <b> ICMP packet </b>\n
- *    getUIPR(), getUPORTR()
- * 	-# @b etc. \n
- *    getPHYCFGR(), setPHYCFGR(), getVERSIONR() \n\n
- *
- * - \ref Socket_register_group <b>access functions</b> \n
- *   -# <b> SOCKET control</b> \n
- *      getSn_MR(), setSn_MR(), getSn_CR(), setSn_CR(), getSn_IMR(), setSn_IMR(), getSn_IR(), setSn_IR()
- *   -# <b> SOCKET information</b> \n
- *      getSn_SR(), getSn_DHAR(), setSn_DHAR(), getSn_PORT(), setSn_PORT(), getSn_DIPR(), setSn_DIPR(), getSn_DPORT(), setSn_DPORT()
- *      getSn_MSSR(), setSn_MSSR()
- *   -# <b> SOCKET communication </b> \n
- *      getSn_RXBUF_SIZE(), setSn_RXBUF_SIZE(), getSn_TXBUF_SIZE(), setSn_TXBUF_SIZE() \n
- *      getSn_TX_RD(), getSn_TX_WR(), setSn_TX_WR() \n
- *      getSn_RX_RD(), setSn_RX_RD(), getSn_RX_WR() \n
- *      getSn_TX_FSR(), getSn_RX_RSR(), getSn_KPALVTR(), setSn_KPALVTR()
- *   -# <b> IP header field </b> \n
- *      getSn_FRAG(), setSn_FRAG(),  getSn_TOS(), setSn_TOS() \n
- *      getSn_TTL(), setSn_TTL()
- */
-
-/**
- * @defgroup Basic_IO_function Basic I/O function
- * @ingroup WIZCHIP_IO_Functions
- * @brief These are basic input/output functions to read values from register or write values to register.
- */
-
-/**
- * @defgroup Common_register_access_function Common register access functions
- * @ingroup WIZCHIP_IO_Functions
- * @brief These are functions to access <b>common registers</b>.
- */
-
-/**
- * @defgroup Socket_register_access_function Socket register access functions
- * @ingroup WIZCHIP_IO_Functions
- * @brief These are functions to access <b>socket registers</b>.
- */
 
 ////////////////////////
 // Basic I/O Function //
@@ -1189,311 +1245,393 @@ void     WIZCHIP_WRITE_BUF(uint32_t AddrSel, uint8_t* pBuf, uint16_t len);
 /**
  * @ingroup Common_register_access_function
  * @brief Set Mode Register
- * @param mr The value to be set
+ * @param (uint8_t)mr The value to be set.
  * @sa getMR()
  */
-void     setMR(uint8_t mr);
+#define setMR(mr) \
+	WIZCHIP_WRITE(MR,mr)
+
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get Mode Register
- * @return The value of Mode register
+ * @return uint8_t. The value of Mode register.
  * @sa setMR()
  */
-uint8_t  getMR(void);
+#define getMR() \
+		WIZCHIP_READ(MR)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set gateway IP address
- * @param gar Pointer variable to set gateway IP address. It should be allocated 4 bytes.
+ * @param (uint8_t*)gar Pointer variable to set gateway IP address. It should be allocated 4 bytes.
  * @sa getGAR()
  */
-void     setGAR(uint8_t* gar);
+#define setGAR(gar) \
+		WIZCHIP_WRITE_BUF(GAR,gar,4)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get gateway IP address
- * @param gar Pointer variable to get gateway IP address. It should be allocated 4 bytes.
+ * @param (uint8_t*)gar Pointer variable to get gateway IP address. It should be allocated 4 bytes.
  * @sa setGAR()
  */
-void     getGAR(uint8_t* gar);
+#define getGAR(gar) \
+		WIZCHIP_READ_BUF(GAR,gar,4)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set subnet mask address
- * @param subr Pointer variable to set subnet mask address. It should be allocated 4 bytes.
+ * @param (uint8_t*)subr Pointer variable to set subnet mask address. It should be allocated 4 bytes.
  * @sa getSUBR()
  */
-void     setSUBR(uint8_t* subr);
+#define setSUBR(subr) \
+		WIZCHIP_WRITE_BUF(SUBR, subr,4)
+
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get subnet mask address
- * @param subr Pointer variable to get subnet mask address. It should be allocated 4 bytes.
+ * @param (uint8_t*)subr Pointer variable to get subnet mask address. It should be allocated 4 bytes.
  * @sa setSUBR()
  */
-void     getSUBR(uint8_t* subr);
+#define getSUBR(subr) \
+		WIZCHIP_READ_BUF(SUBR, subr, 4)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set local MAC address
- * @param shar Pointer variable to set local MAC address. It should be allocated 6 bytes.
+ * @param (uint8_t*)shar Pointer variable to set local MAC address. It should be allocated 6 bytes.
  * @sa getSHAR()
  */
-void     setSHAR(uint8_t* shar);
+#define setSHAR(shar) \
+		WIZCHIP_WRITE_BUF(SHAR, shar, 6)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get local MAC address
- * @param shar Pointer variable to get local MAC address. It should be allocated 6 bytes.
+ * @param (uint8_t*)shar Pointer variable to get local MAC address. It should be allocated 6 bytes.
  * @sa setSHAR()
  */
-void     getSHAR(uint8_t* shar);
+#define getSHAR(shar) \
+		WIZCHIP_READ_BUF(SHAR, shar, 6)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set local IP address
- * @param sipr Pointer variable to set local IP address. It should be allocated 4 bytes.
+ * @param (uint8_t*)sipr Pointer variable to set local IP address. It should be allocated 4 bytes.
  * @sa getSIPR()
  */
-void     setSIPR(uint8_t* sipr);
+#define setSIPR(sipr) \
+		WIZCHIP_WRITE_BUF(SIPR, sipr, 4)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get local IP address
- * @param sipr Pointer variable to get local IP address. It should be allocated 4 bytes.
+ * @param (uint8_t*)sipr Pointer variable to get local IP address. It should be allocated 4 bytes.
  * @sa setSIPR()
  */
-void     getSIPR(uint8_t* sipr);
+#define getSIPR(sipr) \
+		WIZCHIP_READ_BUF(SIPR, sipr, 4)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set INTLEVEL register
- * @param intlevel Value to set @ref INTLEVEL register.
+ * @param (uint16_t)intlevel Value to set @ref INTLEVEL register.
  * @sa getINTLEVEL()
  */
-void     setINTLEVEL(uint16_t intlevel);
+#define setINTLEVEL(intlevel)  {\
+		WIZCHIP_WRITE(INTLEVEL,   (uint8_t)(intlevel >> 8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(INTLEVEL,1), (uint8_t) intlevel); \
+	}
+
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get INTLEVEL register
- * @return Value of @ref INTLEVEL register.
+ * @return uint16_t. Value of @ref INTLEVEL register.
  * @sa setINTLEVEL()
  */
-uint16_t getINTLEVEL(void);
+//M20150401 : Type explict declaration
+/*
+#define getINTLEVEL() \
+		((WIZCHIP_READ(INTLEVEL) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(INTLEVEL,1)))
+*/
+#define getINTLEVEL() \
+		(((uint16_t)WIZCHIP_READ(INTLEVEL) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(INTLEVEL,1)))
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set @ref IR register
- * @param ir Value to set @ref IR register.
+ * @param (uint8_t)ir Value to set @ref IR register.
  * @sa getIR()
  */
-void     setIR(uint8_t ir);
+#define setIR(ir) \
+		WIZCHIP_WRITE(IR, (ir & 0xF0))
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref IR register
- * @return Value of @ref IR register.
+ * @return uint8_t. Value of @ref IR register.
  * @sa setIR()
  */
-uint8_t  getIR(void);
-
+#define getIR() \
+		(WIZCHIP_READ(IR) & 0xF0)
 /**
  * @ingroup Common_register_access_function
- * @brief Set @ref IMR register
- * @param imr Value to set @ref IMR register.
+ * @brief Set @ref _IMR_ register
+ * @param (uint8_t)imr Value to set @ref _IMR_ register.
  * @sa getIMR()
  */
-void     setIMR(uint8_t imr);
+#define setIMR(imr) \
+		WIZCHIP_WRITE(_IMR_, imr)
 
 /**
  * @ingroup Common_register_access_function
- * @brief Get @ref IMR register
- * @return Value of @ref IMR register.
+ * @brief Get @ref _IMR_ register
+ * @return uint8_t. Value of @ref _IMR_ register.
  * @sa setIMR()
  */
-uint8_t  getIMR(void);
+#define getIMR() \
+		WIZCHIP_READ(_IMR_)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set @ref SIR register
- * @param sir Value to set @ref SIR register.
+ * @param (uint8_t)sir Value to set @ref SIR register.
  * @sa getSIR()
  */
-void     setSIR(uint8_t sir);
+#define setSIR(sir) \
+		WIZCHIP_WRITE(SIR, sir)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref SIR register
- * @return Value of @ref SIR register.
+ * @return uint8_t. Value of @ref SIR register.
  * @sa setSIR()
  */
-uint8_t  getSIR(void);
-
+#define getSIR() \
+		WIZCHIP_READ(SIR)
 /**
  * @ingroup Common_register_access_function
  * @brief Set @ref SIMR register
- * @param simr Value to set @ref SIMR register.
+ * @param (uint8_t)simr Value to set @ref SIMR register.
  * @sa getSIMR()
  */
-void     setSIMR(uint8_t simr);
+#define setSIMR(simr) \
+		WIZCHIP_WRITE(SIMR, simr)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref SIMR register
- * @return Value of @ref SIMR register.
+ * @return uint8_t. Value of @ref SIMR register.
  * @sa setSIMR()
  */
-uint8_t  getSIMR(void);
+#define getSIMR() \
+		WIZCHIP_READ(SIMR)
 
 /**
  * @ingroup Common_register_access_function
- * @brief Set @ref RTR register
- * @param rtr Value to set @ref RTR register.
+ * @brief Set @ref _RTR_ register
+ * @param (uint16_t)rtr Value to set @ref _RTR_ register.
  * @sa getRTR()
  */
-void     setRTR(uint16_t rtr);
+#define setRTR(rtr)   {\
+		WIZCHIP_WRITE(_RTR_,   (uint8_t)(rtr >> 8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(_RTR_,1), (uint8_t) rtr); \
+	}
 
 /**
  * @ingroup Common_register_access_function
- * @brief Get @ref RTR register
- * @return Value of @ref RTR register.
+ * @brief Get @ref _RTR_ register
+ * @return uint16_t. Value of @ref _RTR_ register.
  * @sa setRTR()
  */
-uint16_t getRTR(void);
+//M20150401 : Type explict declaration
+/*
+#define getRTR() \
+		((WIZCHIP_READ(_RTR_) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(_RTR_,1)))
+*/
+#define getRTR() \
+		(((uint16_t)WIZCHIP_READ(_RTR_) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(_RTR_,1)))
+
 
 /**
  * @ingroup Common_register_access_function
- * @brief Set @ref RCR register
- * @param rcr Value to set @ref RCR register.
+ * @brief Set @ref _RCR_ register
+ * @param (uint8_t)rcr Value to set @ref _RCR_ register.
  * @sa getRCR()
  */
-void     setRCR(uint8_t rcr);
+#define setRCR(rcr) \
+		WIZCHIP_WRITE(_RCR_, rcr)
 
 /**
  * @ingroup Common_register_access_function
- * @brief Get @ref RCR register
- * @return Value of @ref RCR register.
+ * @brief Get @ref _RCR_ register
+ * @return uint8_t. Value of @ref _RCR_ register.
  * @sa setRCR()
  */
-uint8_t  getRCR(void);
+#define getRCR() \
+		WIZCHIP_READ(_RCR_)
+
+//================================================== test done ===========================================================
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set @ref PTIMER register
- * @param ptimer Value to set @ref PTIMER register.
+ * @param (uint8_t)ptimer Value to set @ref PTIMER register.
  * @sa getPTIMER()
  */
-void     setPTIMER(uint8_t ptimer);
+#define setPTIMER(ptimer) \
+		WIZCHIP_WRITE(PTIMER, ptimer)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref PTIMER register
- * @return Value of @ref PTIMER register.
+ * @return uint8_t. Value of @ref PTIMER register.
  * @sa setPTIMER()
  */
-uint8_t  getPTIMER(void);
+#define getPTIMER() \
+		WIZCHIP_READ(PTIMER)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set @ref PMAGIC register
- * @param pmagic Value to set @ref PMAGIC register.
+ * @param (uint8_t)pmagic Value to set @ref PMAGIC register.
  * @sa getPMAGIC()
  */
-void     setPMAGIC(uint8_t pmagic);
+#define setPMAGIC(pmagic) \
+		WIZCHIP_WRITE(PMAGIC, pmagic)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref PMAGIC register
- * @return Value of @ref PMAGIC register.
+ * @return uint8_t. Value of @ref PMAGIC register.
  * @sa setPMAGIC()
  */
-uint8_t  getPMAGIC(void);
+#define getPMAGIC() \
+		WIZCHIP_READ(PMAGIC)
 
 /**
  * @ingroup Common_register_access_function
- * @brief Set @ref PHAR register
- * @param phar Pointer variable to set PPP destination MAC register address. It should be allocated 6 bytes.
+ * @brief Set @ref PHAR address
+ * @param (uint8_t*)phar Pointer variable to set PPP destination MAC register address. It should be allocated 6 bytes.
  * @sa getPHAR()
  */
-void     setPHAR(uint8_t* phar);
+#define setPHAR(phar) \
+		WIZCHIP_WRITE_BUF(PHAR, phar, 6)
 
 /**
  * @ingroup Common_register_access_function
- * @brief Get @ref PHAR register
- * @param phar Pointer variable to PPP destination MAC register address. It should be allocated 6 bytes.
+ * @brief Get @ref PHAR address
+ * @param (uint8_t*)phar Pointer variable to PPP destination MAC register address. It should be allocated 6 bytes.
  * @sa setPHAR()
  */
-void     getPHAR(uint8_t* phar);
+#define getPHAR(phar) \
+		WIZCHIP_READ_BUF(PHAR, phar, 6)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set @ref PSID register
- * @param psid Value to set @ref PSID register.
+ * @param (uint16_t)psid Value to set @ref PSID register.
  * @sa getPSID()
  */
-void     setPSID(uint16_t psid);
+#define setPSID(psid)  {\
+		WIZCHIP_WRITE(PSID,   (uint8_t)(psid >> 8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(PSID,1), (uint8_t) psid); \
+	}
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref PSID register
- * @return Value of @ref PSID register.
+ * @return uint16_t. Value of @ref PSID register.
  * @sa setPSID()
  */
-uint16_t getPSID(void);
+//uint16_t getPSID(void);
+//M20150401 : Type explict declaration
+/*
+#define getPSID() \
+		((WIZCHIP_READ(PSID) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(PSID,1)))
+*/
+#define getPSID() \
+		(((uint16_t)WIZCHIP_READ(PSID) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(PSID,1)))
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set @ref PMRU register
- * @param pmru Value to set @ref PMRU register.
+ * @param (uint16_t)pmru Value to set @ref PMRU register.
  * @sa getPMRU()
  */
-void     setPMRU(uint16_t pmru);
+#define setPMRU(pmru) { \
+		WIZCHIP_WRITE(PMRU,   (uint8_t)(pmru>>8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(PMRU,1), (uint8_t) pmru); \
+	}
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref PMRU register
- * @return Value of @ref PMRU register.
+ * @return uint16_t. Value of @ref PMRU register.
  * @sa setPMRU()
  */
-uint16_t getPMRU(void);
+//M20150401 : Type explict declaration
+/*
+#define getPMRU() \
+		((WIZCHIP_READ(PMRU) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(PMRU,1)))
+*/
+#define getPMRU() \
+		(((uint16_t)WIZCHIP_READ(PMRU) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(PMRU,1)))
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get unreachable IP address
- * @param uipr Pointer variable to get unreachable IP address. It should be allocated 4 bytes.
+ * @param (uint8_t*)uipr Pointer variable to get unreachable IP address. It should be allocated 4 bytes.
  */
-void     getUIPR(uint8_t* uipr);
+//M20150401 : Size Error of UIPR (6 -> 4)
+/*
+#define getUIPR(uipr) \
+		WIZCHIP_READ_BUF(UIPR,uipr,6)
+*/
+#define getUIPR(uipr) \
+		WIZCHIP_READ_BUF(UIPR,uipr,4)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref UPORTR register
- * @return Value of @ref UPORTR register.
+ * @return uint16_t. Value of @ref UPORTR register.
  */
-uint16_t getUPORTR(void);
+//M20150401 : Type explict declaration 
+/*
+#define getUPORTR() \
+	((WIZCHIP_READ(UPORTR) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(UPORTR,1)))
+*/
+#define getUPORTR() \
+	(((uint16_t)WIZCHIP_READ(UPORTR) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(UPORTR,1)))	
 
 /**
  * @ingroup Common_register_access_function
  * @brief Set @ref PHYCFGR register
- * @param phycfgr Value to set @ref PHYCFGR register.
+ * @param (uint8_t)phycfgr Value to set @ref PHYCFGR register.
  * @sa getPHYCFGR()
  */
-void     setPHYCFGR(uint8_t phycfgr);
+#define setPHYCFGR(phycfgr) \
+		WIZCHIP_WRITE(PHYCFGR, phycfgr)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref PHYCFGR register
- * @return Value of @ref PHYCFGR register.
+ * @return uint8_t. Value of @ref PHYCFGR register.
  * @sa setPHYCFGR()
  */
-uint8_t  getPHYCFGR(void);
+#define getPHYCFGR() \
+		WIZCHIP_READ(PHYCFGR)
 
 /**
  * @ingroup Common_register_access_function
  * @brief Get @ref VERSIONR register
- * @return Value of @ref VERSIONR register.
+ * @return uint8_t. Value of @ref VERSIONR register.
  */
-uint8_t  getVERSIONR(void);
+#define getVERSIONR() \
+		WIZCHIP_READ(VERSIONR)
 
 /////////////////////////////////////
 
@@ -1503,328 +1641,442 @@ uint8_t  getVERSIONR(void);
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_MR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param mr Value to set @ref Sn_MR
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)mr Value to set @ref Sn_MR
  * @sa getSn_MR()
  */
-void     setSn_MR(uint8_t sn, uint8_t mr);
+#define setSn_MR(sn, mr) \
+		WIZCHIP_WRITE(Sn_MR(sn),mr)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_MR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_MR.
  * @sa setSn_MR()
  */
-uint8_t  getSn_MR(uint8_t sn);
+#define getSn_MR(sn) \
+	WIZCHIP_READ(Sn_MR(sn))
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_CR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param cr Value to set @ref Sn_CR
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)cr Value to set @ref Sn_CR
  * @sa getSn_CR()
  */
-void     setSn_CR(uint8_t sn, uint8_t cr);
+#define setSn_CR(sn, cr) \
+		WIZCHIP_WRITE(Sn_CR(sn), cr)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_CR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_CR.
  * @sa setSn_CR()
  */
-uint8_t  getSn_CR(uint8_t sn);
+#define getSn_CR(sn) \
+		WIZCHIP_READ(Sn_CR(sn))
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_IR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param ir Value to set @ref Sn_IR
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)ir Value to set @ref Sn_IR
  * @sa getSn_IR()
  */
-void     setSn_IR(uint8_t sn, uint8_t ir);
+#define setSn_IR(sn, ir) \
+		WIZCHIP_WRITE(Sn_IR(sn), (ir & 0x1F))
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_IR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_IR.
  * @sa setSn_IR()
  */
-uint8_t  getSn_IR(uint8_t sn);
+#define getSn_IR(sn) \
+		(WIZCHIP_READ(Sn_IR(sn)) & 0x1F)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_IMR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param imr Value to set @ref Sn_IMR
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)imr Value to set @ref Sn_IMR
  * @sa getSn_IMR()
  */
-void     setSn_IMR(uint8_t sn, uint8_t imr);
+#define setSn_IMR(sn, imr) \
+		WIZCHIP_WRITE(Sn_IMR(sn), (imr & 0x1F))
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_IMR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_IMR.
  * @sa setSn_IMR()
  */
-uint8_t  getSn_IMR(uint8_t sn);
+#define getSn_IMR(sn) \
+		(WIZCHIP_READ(Sn_IMR(sn)) & 0x1F)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_SR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_SR.
  */
-uint8_t  getSn_SR(uint8_t sn);
+#define getSn_SR(sn) \
+		WIZCHIP_READ(Sn_SR(sn))
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_PORT register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param port Value to set @ref Sn_PORT
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint16_t)port Value to set @ref Sn_PORT.
  * @sa getSn_PORT()
  */
-void     setSn_PORT(uint8_t sn, uint16_t port);
+#define setSn_PORT(sn, port)  { \
+		WIZCHIP_WRITE(Sn_PORT(sn),   (uint8_t)(port >> 8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(Sn_PORT(sn),1), (uint8_t) port); \
+	}
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_PORT register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_PORT.
  * @sa setSn_PORT()
  */
-uint16_t getSn_PORT(uint8_t sn);
+//M20150401 : Type explict declaration 
+/*
+#define getSn_PORT(sn) \
+		((WIZCHIP_READ(Sn_PORT(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_PORT(sn),1)))
+*/
+#define getSn_PORT(sn) \
+		(((uint16_t)WIZCHIP_READ(Sn_PORT(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_PORT(sn),1)))		
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_DHAR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param dhar Pointer variable to set socket n destination hardware address. It should be allocated 6 bytes.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t*)dhar Pointer variable to set socket n destination hardware address. It should be allocated 6 bytes.
  * @sa getSn_DHAR()
  */
-void     setSn_DHAR(uint8_t sn, uint8_t* dhar);
+#define setSn_DHAR(sn, dhar) \
+		WIZCHIP_WRITE_BUF(Sn_DHAR(sn), dhar, 6)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_MR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param dhar Pointer variable to get socket n destination hardware address. It should be allocated 6 bytes.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t*)dhar Pointer variable to get socket n destination hardware address. It should be allocated 6 bytes.
  * @sa setSn_DHAR()
  */
-void     getSn_DHAR(uint8_t sn, uint8_t* dhar);
+#define getSn_DHAR(sn, dhar) \
+		WIZCHIP_READ_BUF(Sn_DHAR(sn), dhar, 6)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_DIPR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param dipr Pointer variable to set socket n destination IP address. It should be allocated 4 bytes.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t*)dipr Pointer variable to set socket n destination IP address. It should be allocated 4 bytes.
  * @sa getSn_DIPR()
  */
-void     setSn_DIPR(uint8_t sn, uint8_t* dipr);
+#define setSn_DIPR(sn, dipr) \
+		WIZCHIP_WRITE_BUF(Sn_DIPR(sn), dipr, 4)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_DIPR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param dipr Pointer variable to get socket n destination IP address. It should be allocated 4 bytes.
- * @sa SetSn_DIPR()
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t*)dipr Pointer variable to get socket n destination IP address. It should be allocated 4 bytes.
+ * @sa setSn_DIPR()
  */
-void     getSn_DIPR(uint8_t sn, uint8_t* dipr);
+#define getSn_DIPR(sn, dipr) \
+		WIZCHIP_READ_BUF(Sn_DIPR(sn), dipr, 4)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_DPORT register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param dport Value to set @ref Sn_DPORT
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint16_t)dport Value to set @ref Sn_DPORT
  * @sa getSn_DPORT()
  */
-void     setSn_DPORT(uint8_t sn, uint16_t dport);
+#define setSn_DPORT(sn, dport) { \
+		WIZCHIP_WRITE(Sn_DPORT(sn),   (uint8_t) (dport>>8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(Sn_DPORT(sn),1), (uint8_t)  dport); \
+	}
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_DPORT register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_DPORT.
  * @sa setSn_DPORT()
  */
-uint16_t getSn_DPORT(uint8_t sn);
+//M20150401 : Type explict declaration
+/*
+#define getSn_DPORT(sn) \
+		((WIZCHIP_READ(Sn_DPORT(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_DPORT(sn),1)))
+*/
+#define getSn_DPORT(sn) \
+		(((uint16_t)WIZCHIP_READ(Sn_DPORT(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_DPORT(sn),1)))		
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_MSSR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param mss Value to set @ref Sn_MSSR
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint16_t)mss Value to set @ref Sn_MSSR
  * @sa setSn_MSSR()
  */
-void     setSn_MSSR(uint8_t sn, uint16_t mss);
+#define setSn_MSSR(sn, mss) { \
+		WIZCHIP_WRITE(Sn_MSSR(sn),   (uint8_t)(mss>>8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(Sn_MSSR(sn),1), (uint8_t) mss); \
+	}
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_MSSR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_MSSR.
  * @sa setSn_MSSR()
  */
-uint16_t getSn_MSSR(uint8_t sn);
+//M20150401 : Type explict declaration
+/*
+#define getSn_MSSR(sn) \
+		((WIZCHIP_READ(Sn_MSSR(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_MSSR(sn),1)))
+*/
+#define getSn_MSSR(sn) \
+		(((uint16_t)WIZCHIP_READ(Sn_MSSR(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_MSSR(sn),1)))		
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_TOS register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param tos Value to set @ref Sn_TOS
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)tos Value to set @ref Sn_TOS
  * @sa getSn_TOS()
  */
-void     setSn_TOS(uint8_t sn, uint8_t tos);
+#define setSn_TOS(sn, tos) \
+		WIZCHIP_WRITE(Sn_TOS(sn), tos)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_TOS register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of Sn_TOS.
  * @sa setSn_TOS()
  */
-uint8_t  getSn_TOS(uint8_t sn);
+#define getSn_TOS(sn) \
+		WIZCHIP_READ(Sn_TOS(sn))
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_TTL register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param ttl Value to set @ref Sn_TTL
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)ttl Value to set @ref Sn_TTL
  * @sa getSn_TTL()
  */
-void     setSn_TTL(uint8_t sn, uint8_t ttl);
+#define setSn_TTL(sn, ttl) \
+		WIZCHIP_WRITE(Sn_TTL(sn), ttl)
+
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_TTL register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_TTL.
  * @sa setSn_TTL()
  */
-uint8_t  getSn_TTL(uint8_t sn);
+#define getSn_TTL(sn) \
+		WIZCHIP_READ(Sn_TTL(sn))
+
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_RXBUF_SIZE register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param rxbufsize Value to set @ref Sn_RXBUF_SIZE
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)rxbufsize Value to set @ref Sn_RXBUF_SIZE
  * @sa getSn_RXBUF_SIZE()
  */
-void     setSn_RXBUF_SIZE(uint8_t sn, uint8_t rxbufsize);
+#define setSn_RXBUF_SIZE(sn, rxbufsize) \
+		WIZCHIP_WRITE(Sn_RXBUF_SIZE(sn),rxbufsize)
+
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_RXBUF_SIZE register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_RXBUF_SIZE.
  * @sa setSn_RXBUF_SIZE()
  */
-uint8_t  getSn_RXBUF_SIZE(uint8_t sn);
+#define getSn_RXBUF_SIZE(sn) \
+		WIZCHIP_READ(Sn_RXBUF_SIZE(sn))
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_TXBUF_SIZE register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param txbufsize Value to set @ref Sn_TXBUF_SIZE
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)txbufsize Value to set @ref Sn_TXBUF_SIZE
  * @sa getSn_TXBUF_SIZE()
  */
-void     setSn_TXBUF_SIZE(uint8_t sn, uint8_t txbufsize);
+#define setSn_TXBUF_SIZE(sn, txbufsize) \
+		WIZCHIP_WRITE(Sn_TXBUF_SIZE(sn), txbufsize)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_TXBUF_SIZE register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_TXBUF_SIZE.
  * @sa setSn_TXBUF_SIZE()
  */
-uint8_t  getSn_TXBUF_SIZE(uint8_t sn);
+#define getSn_TXBUF_SIZE(sn) \
+		WIZCHIP_READ(Sn_TXBUF_SIZE(sn))
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_TX_FSR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_TX_FSR.
  */
 uint16_t getSn_TX_FSR(uint8_t sn);
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_TX_RD register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_TX_RD.
  */
-uint16_t getSn_TX_RD(uint8_t sn);
+//M20150401 : Type explict declaration
+/*
+#define getSn_TX_RD(sn) \
+		((WIZCHIP_READ(Sn_TX_RD(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_TX_RD(sn),1)))
+*/
+#define getSn_TX_RD(sn) \
+		(((uint16_t)WIZCHIP_READ(Sn_TX_RD(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_TX_RD(sn),1)))		
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_TX_WR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param txwr Value to set @ref Sn_TX_WR
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint16_t)txwr Value to set @ref Sn_TX_WR
  * @sa GetSn_TX_WR()
  */
-void     setSn_TX_WR(uint8_t sn, uint16_t txwr);
+#define setSn_TX_WR(sn, txwr) { \
+		WIZCHIP_WRITE(Sn_TX_WR(sn),   (uint8_t)(txwr>>8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(Sn_TX_WR(sn),1), (uint8_t) txwr); \
+		}
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_TX_WR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_TX_WR.
  * @sa setSn_TX_WR()
  */
-uint16_t getSn_TX_WR(uint8_t sn);
+//M20150401 : Type explict declaration
+/*
+#define getSn_TX_WR(sn) \
+		((WIZCHIP_READ(Sn_TX_WR(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_TX_WR(sn),1)))
+*/
+#define getSn_TX_WR(sn) \
+		(((uint16_t)WIZCHIP_READ(Sn_TX_WR(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_TX_WR(sn),1)))		
+
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_RX_RSR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_RX_RSR.
  */
 uint16_t getSn_RX_RSR(uint8_t sn);
+
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_RX_RD register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param rxrd Value to set @ref Sn_RX_RD
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint16_t)rxrd Value to set @ref Sn_RX_RD
  * @sa getSn_RX_RD()
  */
-void     setSn_RX_RD(uint8_t sn, uint16_t rxrd);
+#define setSn_RX_RD(sn, rxrd) { \
+		WIZCHIP_WRITE(Sn_RX_RD(sn),   (uint8_t)(rxrd>>8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(Sn_RX_RD(sn),1), (uint8_t) rxrd); \
+	}
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_RX_RD register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_RX_RD.
  * @sa setSn_RX_RD()
  */
-uint16_t getSn_RX_RD(uint8_t sn);
+//M20150401 : Type explict declaration 
+/*
+#define getSn_RX_RD(sn) \
+		((WIZCHIP_READ(Sn_RX_RD(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_RX_RD(sn),1)))
+*/		
+#define getSn_RX_RD(sn) \
+		(((uint16_t)WIZCHIP_READ(Sn_RX_RD(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_RX_RD(sn),1)))		
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_RX_WR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_RX_WR.
  */
-uint16_t getSn_RX_WR(uint8_t sn);
+//M20150401 : Type explict declaration
+/*  
+#define getSn_RX_WR(sn) \
+		((WIZCHIP_READ(Sn_RX_WR(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_RX_WR(sn),1)))
+*/		
+#define getSn_RX_WR(sn) \
+		(((uint16_t)WIZCHIP_READ(Sn_RX_WR(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_RX_WR(sn),1)))		
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_FRAG register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param frag Value to set @ref Sn_FRAG
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint16_t)frag Value to set @ref Sn_FRAG
  * @sa getSn_FRAD()
  */
-void     setSn_FRAG(uint8_t sn, uint16_t frag);
+#define setSn_FRAG(sn, frag) { \
+		WIZCHIP_WRITE(Sn_FRAG(sn),  (uint8_t)(frag >>8)); \
+		WIZCHIP_WRITE(WIZCHIP_OFFSET_INC(Sn_FRAG(sn),1), (uint8_t) frag); \
+	}
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_FRAG register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_FRAG.
  * @sa setSn_FRAG()
  */
-uint16_t getSn_FRAG(uint8_t sn);
+//M20150401 : Type explict declaration  
+/*
+#define getSn_FRAG(sn) \
+		((WIZCHIP_READ(Sn_FRAG(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_FRAG(sn),1)))
+*/		
+#define getSn_FRAG(sn) \
+      (((uint16_t)WIZCHIP_READ(Sn_FRAG(sn)) << 8) + WIZCHIP_READ(WIZCHIP_OFFSET_INC(Sn_FRAG(sn),1)))		
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Set @ref Sn_KPALVTR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
- * @param kpalvt Value to set @ref Sn_KPALVTR
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)kpalvt Value to set @ref Sn_KPALVTR
  * @sa getSn_KPALVTR()
  */
-void     setSn_KPALVTR(uint8_t sn, uint8_t kpalvt);
+#define setSn_KPALVTR(sn, kpalvt) \
+		WIZCHIP_WRITE(Sn_KPALVTR(sn), kpalvt)
 
 /**
  * @ingroup Socket_register_access_function
  * @brief Get @ref Sn_KPALVTR register
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_KPALVTR.
  * @sa setSn_KPALVTR()
  */
-uint8_t  getSn_KPALVTR(uint8_t sn);
+#define getSn_KPALVTR(sn) \
+		WIZCHIP_READ(Sn_KPALVTR(sn))
 
 //////////////////////////////////////
 
@@ -1832,14 +2084,32 @@ uint8_t  getSn_KPALVTR(uint8_t sn);
 // Sn_TXBUF & Sn_RXBUF IO function //
 /////////////////////////////////////
 /**  
+ * @brief Socket_register_access_function
  * @brief Gets the max buffer size of socket sn passed as parameter.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of Socket n RX max buffer size.
  */
-uint16_t getSn_RxMAX(uint8_t sn);
+//M20150401 : Type explict declaration 
+/*
+#define getSn_RxMAX(sn) \
+		(getSn_RXBUF_SIZE(sn) << 10)
+*/		
+#define getSn_RxMAX(sn) \
+		(((uint16_t)getSn_RXBUF_SIZE(sn)) << 10)		
 
 /**  
+ * @brief Socket_register_access_function
  * @brief Gets the max buffer size of socket sn passed as parameters.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of Socket n TX max buffer size.
  */
-uint16_t getSn_TxMAX(uint8_t sn);
+//M20150401 : Type explict declaration 
+/*
+#define getSn_TxMAX(sn) \
+		(getSn_TXBUF_SIZE(sn) << 10)
+*/		
+#define getSn_TxMAX(sn) \
+		(((uint16_t)getSn_TXBUF_SIZE(sn)) << 10)		
 
 /**
  * @ingroup Basic_IO_function
@@ -1850,8 +2120,7 @@ uint16_t getSn_TxMAX(uint8_t sn);
  * and updates the Tx write pointer register.
  * This function is being called by send() and sendto() function also.
  *
- * @note User should read upper byte first and lower byte later to get proper value.
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
  * @param wizdata Pointer buffer to write data
  * @param len Data length
  * @sa wiz_recv_data()
@@ -1867,8 +2136,7 @@ void wiz_send_data(uint8_t sn, uint8_t *wizdata, uint16_t len);
  * to <i>wizdata(pointer variable)</i> of the length of <i>len(variable)</i> bytes.
  * This function is being called by recv() also.
  *
- * @note User should read upper byte first and lower byte later to get proper value.
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
  * @param wizdata Pointer buffer to read data
  * @param len Data length
  * @sa wiz_send_data()
@@ -1879,9 +2147,17 @@ void wiz_recv_data(uint8_t sn, uint8_t *wizdata, uint16_t len);
  * @ingroup Basic_IO_function
  * @brief It discard the received data in RX memory.
  * @details It discards the data of the length of <i>len(variable)</i> bytes in internal RX memory.
- * @param sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
  * @param len Data length
  */
 void wiz_recv_ignore(uint8_t sn, uint16_t len);
+
+/// @cond DOXY_APPLY_CODE
+#endif
+/// @endcond
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif   // _W5500_H_

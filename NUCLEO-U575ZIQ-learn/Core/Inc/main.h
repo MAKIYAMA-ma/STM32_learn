@@ -39,6 +39,7 @@ extern "C" {
 #include "setting_flash.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "pin.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

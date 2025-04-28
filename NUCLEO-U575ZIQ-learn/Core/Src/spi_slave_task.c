@@ -24,6 +24,7 @@ void SPISlaveTaskProc(void *argument)
     for (;;) {
         memset(sRxBuf, 0, sizeof(sRxBuf));
 
+        HAL_GPIO_WritePin(W5500_CS_Port, W5500_CS_Pin, GPIO_PIN_RESET);
         if (HAL_SPI_Receive_DMA(&hspi2, sRxBuf, SPI_BUF_SIZE) != HAL_OK) {
             uart_printf(DBG_LVL_ERROR, "SPI Slave DMA rx failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
@@ -45,7 +46,7 @@ void SPISlaveTaskProc(void *argument)
         if (xSemaphoreTake(spi2TxDoneSem, portMAX_DELAY) != pdTRUE) {
             uart_printf(DBG_LVL_DBG, "SPI Slave DMA tx timeout\n");
         }
-
+        HAL_GPIO_WritePin(W5500_CS_Port, W5500_CS_Pin, GPIO_PIN_SET);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
