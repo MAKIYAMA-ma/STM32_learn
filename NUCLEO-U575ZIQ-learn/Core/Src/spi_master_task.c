@@ -9,7 +9,7 @@
 
 extern SPI_HandleTypeDef hspi1;
 
-static uint8_t mTxBuf[SPI_BUF_SIZE] = "Hello from SPI DMA!";
+static uint8_t mTxBuf[SPI_BUF_SIZE] = "Hello from SPI Master!";
 static uint8_t mRxBuf[SPI_BUF_SIZE] = {0};
 
 void SPIMasterTaskProc(void *argument)
@@ -24,8 +24,6 @@ void SPIMasterTaskProc(void *argument)
     for (;;) {
         memset(mRxBuf, 0, sizeof(mRxBuf));
 
-        uart_printf(DBG_LVL_DBG, "dmy");
-
         if (HAL_SPI_Transmit_DMA(&hspi1, mTxBuf, SPI_BUF_SIZE) != HAL_OK) {
             uart_printf(DBG_LVL_ERROR, "SPI Master DMA tx failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
@@ -35,6 +33,7 @@ void SPIMasterTaskProc(void *argument)
         if (xSemaphoreTake(spi1TxDoneSem, portMAX_DELAY) != pdTRUE) {
             uart_printf(DBG_LVL_DBG, "SPI Master DMA tx timeout\n");
         }
+        vTaskDelay(pdMS_TO_TICKS(1));   // Slaveの準備完了待ち 本来は待ち合わせ？
 
         if (HAL_SPI_Receive_DMA(&hspi1, mRxBuf, SPI_BUF_SIZE) != HAL_OK) {
             uart_printf(DBG_LVL_ERROR, "SPI Master DMA rx failed\n");

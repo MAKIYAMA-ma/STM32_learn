@@ -9,7 +9,7 @@
 
 extern SPI_HandleTypeDef hspi2;
 
-static uint8_t sTxBuf[SPI_BUF_SIZE] = "Reply from Slave!";
+static uint8_t sTxBuf[SPI_BUF_SIZE] = "Reply from SPI Slave!";
 static uint8_t sRxBuf[SPI_BUF_SIZE] = {0};
 
 void SPISlaveTaskProc(void *argument)
@@ -23,8 +23,6 @@ void SPISlaveTaskProc(void *argument)
 
     for (;;) {
         memset(sRxBuf, 0, sizeof(sRxBuf));
-
-        uart_printf(DBG_LVL_DBG, "dmy");
 
         if (HAL_SPI_Receive_DMA(&hspi2, sRxBuf, SPI_BUF_SIZE) != HAL_OK) {
             uart_printf(DBG_LVL_ERROR, "SPI Slave DMA rx failed\n");

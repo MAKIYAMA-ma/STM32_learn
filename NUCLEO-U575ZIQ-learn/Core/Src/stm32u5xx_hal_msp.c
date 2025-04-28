@@ -262,7 +262,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     handle_GPDMA1_Channel13.Init.Request = GPDMA1_REQUEST_SPI2_TX;
     handle_GPDMA1_Channel13.Init.BlkHWRequest = DMA_BREQ_SINGLE_BURST;
     handle_GPDMA1_Channel13.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    handle_GPDMA1_Channel13.Init.SrcInc = DMA_SINC_FIXED;
+    handle_GPDMA1_Channel13.Init.SrcInc = DMA_SINC_INCREMENTED;
     handle_GPDMA1_Channel13.Init.DestInc = DMA_DINC_FIXED;
     handle_GPDMA1_Channel13.Init.SrcDataWidth = DMA_SRC_DATAWIDTH_BYTE;
     handle_GPDMA1_Channel13.Init.DestDataWidth = DMA_DEST_DATAWIDTH_BYTE;
@@ -290,7 +290,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     handle_GPDMA1_Channel12.Init.BlkHWRequest = DMA_BREQ_SINGLE_BURST;
     handle_GPDMA1_Channel12.Init.Direction = DMA_PERIPH_TO_MEMORY;
     handle_GPDMA1_Channel12.Init.SrcInc = DMA_SINC_FIXED;
-    handle_GPDMA1_Channel12.Init.DestInc = DMA_DINC_FIXED;
+    handle_GPDMA1_Channel12.Init.DestInc = DMA_DINC_INCREMENTED;
     handle_GPDMA1_Channel12.Init.SrcDataWidth = DMA_SRC_DATAWIDTH_BYTE;
     handle_GPDMA1_Channel12.Init.DestDataWidth = DMA_DEST_DATAWIDTH_BYTE;
     handle_GPDMA1_Channel12.Init.Priority = DMA_LOW_PRIORITY_LOW_WEIGHT;
