@@ -2,6 +2,7 @@
 #include "app_freertos.h"
 #include "cmsis_os.h"
 #include "spi_loop_task.h"
+#include "spi.h"
 #include <string.h>
 
 #define SPI_BUF_SIZE 32
@@ -10,17 +11,6 @@ extern SPI_HandleTypeDef hspi1;
 
 static uint8_t txBuf[SPI_BUF_SIZE] = "Test Message of SPI loopback";
 static uint8_t rxBuf[SPI_BUF_SIZE] = {0};
-
-static SemaphoreHandle_t spiDoneSem;
-
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
-{
-    if (hspi->Instance == SPI1) {
-        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        xSemaphoreGiveFromISR(spiDoneSem, &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-    }
-}
 
 void SPILoopTaskProc(void *argument)
 {
