@@ -23,12 +23,24 @@ void W5500_Unselect(void)
 
 void W5500_ReadBuff(uint8_t* buff, uint16_t len)
 {
-    HAL_SPI_Receive_DMA(&hspi1, buff, len);
+    if(HAL_SPI_Receive_DMA(&hspi1, buff, len) != HAL_OK) {
+        // TODO エラー処理
+        return;
+    }
+    if (xSemaphoreTake(spi1TxDoneSem, portMAX_DELAY) != pdTRUE) {
+        uart_printf(DBG_LVL_DBG, "SPI Master DMA tx timeout\n");
+    }
 }
 
 void W5500_WriteBuff(uint8_t* buff, uint16_t len)
 {
-    HAL_SPI_Transmit_DMA(&hspi1, buff, len);
+    if(HAL_SPI_Transmit_DMA(&hspi1, buff, len) != HAL_OK) {
+        // TODO エラー処理
+        return;
+    }
+    if (xSemaphoreTake(spi1RxDoneSem, portMAX_DELAY) != pdTRUE) {
+        uart_printf(DBG_LVL_DBG, "SPI Master DMA rx timeout\n");
+    }
 }
 
 uint8_t W5500_ReadByte(void)
