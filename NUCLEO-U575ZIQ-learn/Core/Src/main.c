@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "crypto.h"
 
 /* USER CODE END Includes */
 
@@ -130,6 +131,7 @@ int main(void)
 
   /* -- Sample board code to send message over COM1 port ---- */
   uart_printf(DBG_LVL_ERROR, "Welcome to STM32 world !\n\r");
+    TestVerifySignature();
 
   /* -- Sample board code to switch on leds ---- */
   BSP_LED_On(LED_GREEN);

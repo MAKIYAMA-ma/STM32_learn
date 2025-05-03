@@ -1,37 +1,38 @@
-import os
-import subprocess
+from intelhex import IntelHex
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.backends import default_backend
 
 HEX_IN = "NUCLEO-U575ZIQ-learn.hex"
-BIN_TEMP = "temp_fw.bin"
 SIGNATURE_BIN = "signature.bin"
 HEX_OUT = "NUCLEO-U575ZIQ-learn_with_sig.hex"
 PRIVATE_KEY_FILE = "private.pem"
 
-# 対象範囲（署名対象: FLASH先頭〜署名手前まで）
 START_ADDR = 0x08000000
 END_ADDR = 0x081FC000  # 署名前まで
+expected_size = END_ADDR - START_ADDR
 
-# 1. HEX -> BIN (署名対象のみ抽出)
-print("[1] Converting .hex to binary (firmware area only)...")
-subprocess.run([
-    "srec_cat", HEX_IN, "-Intel",
-    "-crop", f"{START_ADDR}", f"{END_ADDR}",
-    "-o", BIN_TEMP, "-Binary"
-], check=True)
+# 1. IntelHexからFLASH領域を再構成
+print("[1] Loading .hex and reconstructing binary with 0xFF fill...")
+ih = IntelHex(HEX_IN)
+firmware_data = bytearray([0xFF] * expected_size)
 
-# 2. SHA256署名作成
-print("[2] Generating signature with private key...")
-with open(BIN_TEMP, "rb") as f:
-    firmware_data = f.read()
+# 実データのある部分だけ書き込み
+for addr in range(START_ADDR, END_ADDR):
+    firmware_data[addr - START_ADDR] = ih[addr]
 
+print(f"[DEBUG] Reconstructed firmware size: {len(firmware_data)}")
+
+# 2. SHA256ハッシュ生成
+print("[2] Generating SHA256 hash...")
 digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
 digest.update(firmware_data)
 hash_value = digest.finalize()
 
-# 秘密鍵読み込み
+print(f"[DEBUG] Hash: {hash_value.hex()}")
+
+# 3. 署名
+print("[3] Signing hash with private key...")
 with open(PRIVATE_KEY_FILE, "rb") as key_file:
     private_key = serialization.load_pem_private_key(
         key_file.read(),
@@ -45,14 +46,15 @@ signature = private_key.sign(
     hashes.SHA256()
 )
 
-# 署名バイナリ保存
+# 4. 署名保存
 with open(SIGNATURE_BIN, "wb") as f:
     f.write(signature)
 
-print(f"[+] Signature ({len(signature)} bytes) saved to '{SIGNATURE_BIN}'")
+print(f"[+] Signature saved to '{SIGNATURE_BIN}'")
 
-# 3. HEXに署名を追記
-print("[3] Appending signature to hex file...")
+# 5. 署名をHEXに追加
+print("[4] Appending signature to hex...")
+import subprocess
 subprocess.run([
     "srec_cat", HEX_IN, "-Intel",
     SIGNATURE_BIN, "-Binary", "-offset", f"{hex(END_ADDR)}",
@@ -60,7 +62,3 @@ subprocess.run([
 ], check=True)
 
 print(f"[✔] Output written to: {HEX_OUT}")
-
-# 4. Cleanup
-os.remove(BIN_TEMP)
-os.remove(SIGNATURE_BIN)
