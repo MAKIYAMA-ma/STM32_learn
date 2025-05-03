@@ -23,9 +23,19 @@ int VerifySignature(uint8_t *firmware, size_t firmware_size,
     mbedtls_sha256(firmware, firmware_size, hash, 0); // 0 = SHA-256（非ハッシュ224）
 
     // DEBUG
+    uart_printf(DBG_LVL_DBG, "HASH:\n");
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 8; j++) {
             uart_printf(DBG_LVL_DBG, "%02X ", hash[i*8+j]);
+        }
+        uart_printf(DBG_LVL_DBG, "\n");
+    }
+
+    uart_printf(DBG_LVL_DBG, "\nSIG:\n");
+    uint8_t *sp = signature;
+    for(int i = 0; i < 4; i++) {
+        for(int j = 0; j < 8; j++) {
+            uart_printf(DBG_LVL_DBG, "%02X ", sp[i*8+j]);
         }
         uart_printf(DBG_LVL_DBG, "\n");
     }

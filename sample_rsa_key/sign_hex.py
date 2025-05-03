@@ -2,6 +2,8 @@ from intelhex import IntelHex
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
+import subprocess
 
 HEX_IN = "NUCLEO-U575ZIQ-learn.hex"
 SIGNATURE_BIN = "signature.bin"
@@ -21,6 +23,9 @@ firmware_data = bytearray([0xFF] * expected_size)
 for addr in range(START_ADDR, END_ADDR):
     firmware_data[addr - START_ADDR] = ih[addr]
 
+with open("pad_fw.bin", "wb") as f:
+    f.write(firmware_data)
+
 print(f"[DEBUG] Reconstructed firmware size: {len(firmware_data)}")
 
 # 2. SHA256ハッシュ生成
@@ -30,6 +35,8 @@ digest.update(firmware_data)
 hash_value = digest.finalize()
 
 print(f"[DEBUG] Hash: {hash_value.hex()}")
+with open("hash.bin", "wb") as f:
+    f.write(hash_value)
 
 # 3. 署名
 print("[3] Signing hash with private key...")
@@ -43,7 +50,7 @@ with open(PRIVATE_KEY_FILE, "rb") as key_file:
 signature = private_key.sign(
     hash_value,
     padding.PKCS1v15(),
-    hashes.SHA256()
+    Prehashed(hashes.SHA256())
 )
 
 # 4. 署名保存
@@ -54,7 +61,6 @@ print(f"[+] Signature saved to '{SIGNATURE_BIN}'")
 
 # 5. 署名をHEXに追加
 print("[4] Appending signature to hex...")
-import subprocess
 subprocess.run([
     "srec_cat", HEX_IN, "-Intel",
     SIGNATURE_BIN, "-Binary", "-offset", f"{hex(END_ADDR)}",
