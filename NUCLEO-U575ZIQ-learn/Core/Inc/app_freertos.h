@@ -60,6 +60,7 @@ extern osThreadId_t BlueLEDTaskHandle;
 extern osThreadId_t SerialTaskHandle;
 extern osThreadId_t SPIMasterTaskHandle;
 extern osThreadId_t SPISlaveTaskHandle;
+extern osThreadId_t EthernetTaskHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -72,6 +73,7 @@ void StartBlueLEDTask(void *argument);
 void StartSerialTask(void *argument);
 void StartSPIMasterTask(void *argument);
 void StartSPISlaveTask(void *argument);
+void StartEthernetTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 

@@ -353,4 +353,5 @@ rtos.0.tasks.2=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlo
 rtos.0.tasks.3=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartSerialTask;name,SerialTask;parameter,NULL;priority,osPriorityAboveNormal;stackSize,128
 rtos.0.tasks.4=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartSPIMasterTask;name,SPIMasterTask;parameter,NULL;priority,osPriorityAboveNormal1;stackSize,128
 rtos.0.tasks.5=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartSPISlaveTask;name,SPISlaveTask;parameter,NULL;priority,osPriorityAboveNormal1;stackSize,128
+rtos.0.tasks.6=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartEthernetTask;name,EthernetTask;parameter,NULL;priority,osPriorityHigh;stackSize,512
 isbadioc=false

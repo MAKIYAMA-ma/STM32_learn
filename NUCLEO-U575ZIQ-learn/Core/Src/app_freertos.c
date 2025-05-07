@@ -26,6 +26,7 @@
 #include "spi_master_task.h"
 #include "spi_slave_task.h"
 #include "spi_loop_task.h"
+#include "http_server_task.h"
 
 /* USER CODE END Includes */
 
@@ -90,6 +91,13 @@ const osThreadAttr_t SPISlaveTask_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal1,
   .stack_size = 128 * 4
 };
+/* Definitions for EthernetTask */
+osThreadId_t EthernetTaskHandle;
+const osThreadAttr_t EthernetTask_attributes = {
+  .name = "EthernetTask",
+  .priority = (osPriority_t) osPriorityHigh,
+  .stack_size = 512 * 4
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -138,6 +146,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of SPISlaveTask */
   SPISlaveTaskHandle = osThreadNew(StartSPISlaveTask, NULL, &SPISlaveTask_attributes);
+
+  /* creation of EthernetTask */
+  EthernetTaskHandle = osThreadNew(StartEthernetTask, NULL, &EthernetTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -269,6 +280,20 @@ void StartSPISlaveTask(void *argument)
     }
 #endif
   /* USER CODE END SPISlaveTask */
+}
+
+/* USER CODE BEGIN Header_StartEthernetTask */
+/**
+* @brief Function implementing the EthernetTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartEthernetTask */
+void StartEthernetTask(void *argument)
+{
+    /* USER CODE BEGIN EthernetTask */
+    HTTPServerTaskProc(argument);
+    /* USER CODE END EthernetTask */
 }
 
 /* Private application code --------------------------------------------------*/

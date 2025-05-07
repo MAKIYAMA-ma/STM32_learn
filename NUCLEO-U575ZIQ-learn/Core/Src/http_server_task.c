@@ -66,6 +66,18 @@ void W5500_Init()
     reg_wizchip_cs_cbfunc(W5500_Select, W5500_Unselect);
     reg_wizchip_spi_cbfunc(W5500_ReadByte, W5500_WriteByte);
     reg_wizchip_spiburst_cbfunc(W5500_ReadBuff, W5500_WriteBuff);
+
+    uint8_t rx_tx_buff_sizes[] = {2, 2, 2, 2, 2, 2, 2, 2};
+    wizchip_init(rx_tx_buff_sizes, rx_tx_buff_sizes);
+
+    wiz_NetInfo net_info = {
+        .mac  = { 0xEA, 0x11, 0x22, 0x33, 0x44, 0xEA },
+        .dhcp = NETINFO_STATIC,
+        .ip = {192, 168, 0, 100}
+    };
+    // set MAC address before using DHCP
+    setSHAR(net_info.mac);
+    setSIPR(net_info.ip);
 }
 
 void HTTPServerTaskProc(void *argument)
@@ -73,6 +85,15 @@ void HTTPServerTaskProc(void *argument)
     int32_t ret;
     /* uint8_t client_ip[4]; */
     /* uint16_t client_port; */
+
+    spi1TxDoneSem = xSemaphoreCreateBinary();
+    spi1RxDoneSem = xSemaphoreCreateBinary();
+    if (spi1TxDoneSem == NULL || spi1RxDoneSem == NULL) {
+        uart_printf(DBG_LVL_ERROR, "Failed to create SPI Master semaphore\n");
+        vTaskDelete(NULL);
+    }
+
+    W5500_Init();
 
     /* ソケットオープン */
     if (socket(SOCK_HTTP_SERVER, Sn_MR_TCP, LISTEN_PORT, 0) != SOCK_HTTP_SERVER)
