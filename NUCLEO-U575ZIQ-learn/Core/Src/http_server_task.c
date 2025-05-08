@@ -30,7 +30,7 @@ void W5500_ReadBuff(uint8_t* buff, uint16_t len)
         // TODO エラー処理
         return;
     }
-    if (xSemaphoreTake(spi1TxDoneSem, portMAX_DELAY) != pdTRUE) {
+    if (xSemaphoreTake(spi1RxDoneSem, portMAX_DELAY) != pdTRUE) {
         uart_printf(DBG_LVL_DBG, "SPI Master DMA tx timeout\n");
     }
 }
@@ -41,7 +41,7 @@ void W5500_WriteBuff(uint8_t* buff, uint16_t len)
         // TODO エラー処理
         return;
     }
-    if (xSemaphoreTake(spi1RxDoneSem, portMAX_DELAY) != pdTRUE) {
+    if (xSemaphoreTake(spi1TxDoneSem, portMAX_DELAY) != pdTRUE) {
         uart_printf(DBG_LVL_DBG, "SPI Master DMA rx timeout\n");
     }
 }
@@ -67,17 +67,29 @@ void W5500_Init()
     reg_wizchip_spi_cbfunc(W5500_ReadByte, W5500_WriteByte);
     reg_wizchip_spiburst_cbfunc(W5500_ReadBuff, W5500_WriteBuff);
 
+    HAL_GPIO_WritePin(W5500_RESET_Port, W5500_RESET_Pin, GPIO_PIN_RESET);
+    osDelay(1000);
+    HAL_GPIO_WritePin(W5500_RESET_Port, W5500_RESET_Pin, GPIO_PIN_SET);
+
     uint8_t rx_tx_buff_sizes[] = {2, 2, 2, 2, 2, 2, 2, 2};
     wizchip_init(rx_tx_buff_sizes, rx_tx_buff_sizes);
 
     wiz_NetInfo net_info = {
         .mac  = { 0xEA, 0x11, 0x22, 0x33, 0x44, 0xEA },
         .dhcp = NETINFO_STATIC,
-        .ip = {192, 168, 0, 100}
+        .ip = {192, 168, 0, 100},
+        .sn = {255, 255, 255, 0},
+        .gw = {192, 168, 0, 101},
     };
     // set MAC address before using DHCP
-    setSHAR(net_info.mac);
-    setSIPR(net_info.ip);
+    wizchip_setnetinfo(&net_info);
+
+    uint8_t ver = getVERSIONR();  // WIZnet ioLibrary を使っている前提
+    if (ver == 0x04) {
+        uart_printf(DBG_LVL_DBG, "W5500 Version: 0x%02X (OK)\n", ver);
+    } else {
+        uart_printf(DBG_LVL_ERROR, "W5500 Version: 0x%02X (NG)\n", ver);
+    }
 }
 
 void HTTPServerTaskProc(void *argument)
