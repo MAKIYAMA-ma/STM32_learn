@@ -291,9 +291,9 @@ void StartSPISlaveTask(void *argument)
 /* USER CODE END Header_StartEthernetTask */
 void StartEthernetTask(void *argument)
 {
-    /* USER CODE BEGIN EthernetTask */
+  /* USER CODE BEGIN EthernetTask */
     HTTPServerTaskProc(argument);
-    /* USER CODE END EthernetTask */
+  /* USER CODE END EthernetTask */
 }
 
 /* Private application code --------------------------------------------------*/

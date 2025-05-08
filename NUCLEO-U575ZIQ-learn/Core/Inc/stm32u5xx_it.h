@@ -57,6 +57,7 @@ void SPI1_IRQHandler(void);
 void SPI2_IRQHandler(void);
 void USART1_IRQHandler(void);
 void TIM17_IRQHandler(void);
+void OTG_FS_IRQHandler(void);
 void GPDMA1_Channel10_IRQHandler(void);
 void GPDMA1_Channel11_IRQHandler(void);
 void GPDMA1_Channel12_IRQHandler(void);
