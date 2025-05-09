@@ -27,6 +27,7 @@
 #include "spi_slave_task.h"
 #include "spi_loop_task.h"
 #include "http_server_task.h"
+#include "tusb.h"
 
 /* USER CODE END Includes */
 
@@ -75,7 +76,7 @@ osThreadId_t SerialTaskHandle;
 const osThreadAttr_t SerialTask_attributes = {
   .name = "SerialTask",
   .priority = (osPriority_t) osPriorityAboveNormal,
-  .stack_size = 128 * 4
+  .stack_size = 512 * 4
 };
 /* Definitions for SPIMasterTask */
 osThreadId_t SPIMasterTaskHandle;
@@ -224,14 +225,13 @@ void StartBlueLEDTask(void *argument)
 void StartSerialTask(void *argument)
 {
   /* USER CODE BEGIN SerialTask */
-    uint32_t cycle_cnt = 0;
+    tusb_init();
 
     /* Infinite loop */
     for(;;)
     {
-        uart_printf(DBG_LVL_DBG, "dummy message from StartSerialTask[%lu]\n", cycle_cnt);
-        cycle_cnt = (cycle_cnt+1)%1000000;
-        osDelay(10*1000);
+        tud_task();
+        osDelay(1);
     }
   /* USER CODE END SerialTask */
 }

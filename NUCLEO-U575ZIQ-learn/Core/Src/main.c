@@ -74,6 +74,7 @@ static void MX_SPI1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 /* USER CODE BEGIN PFP */
+static void OTG_FS_TUD_Init(void);
 
 /* USER CODE END PFP */
 
@@ -89,88 +90,90 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 int main(void)
 {
 
-  /* USER CODE BEGIN 1 */
+    /* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+    /* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+    /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* USER CODE BEGIN Init */
-  InitUserSetting();
+    /* USER CODE BEGIN Init */
+    InitUserSetting();
 
-  /* USER CODE END Init */
+    /* USER CODE END Init */
 
-  /* Configure the System Power */
-  SystemPower_Config();
+    /* Configure the System Power */
+    SystemPower_Config();
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+    /* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+    /* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_GPDMA1_Init();
-  MX_USART1_UART_Init();
-  MX_ICACHE_Init();
-  MX_SPI1_Init();
-  MX_SPI2_Init();
-  MX_USB_OTG_FS_PCD_Init();
-  /* USER CODE BEGIN 2 */
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_GPDMA1_Init();
+    MX_USART1_UART_Init();
+    MX_ICACHE_Init();
+    MX_SPI1_Init();
+    MX_SPI2_Init();
+    /* USER CODE BEGIN 2 */
+    // tinyUSB側ではHALによる制御を想定していない
+    /* MX_USB_OTG_FS_PCD_Init(); */
+    OTG_FS_TUD_Init();
     uart_init();
-  /* USER CODE END 2 */
+    /* USER CODE END 2 */
 
-  /* Init scheduler */
-  osKernelInitialize();
+    /* Init scheduler */
+    osKernelInitialize();
 
-  /* Call init function for freertos objects (in app_freertos.c) */
-  MX_FREERTOS_Init();
+    /* Call init function for freertos objects (in app_freertos.c) */
+    MX_FREERTOS_Init();
 
-  /* USER CODE BEGIN BSP */
+    /* USER CODE BEGIN BSP */
 
-  /* -- Sample board code to send message over COM1 port ---- */
-  uart_printf(DBG_LVL_ERROR, "Welcome to STM32 world !\n\r");
+    /* -- Sample board code to send message over COM1 port ---- */
+    uart_printf(DBG_LVL_ERROR, "Welcome to STM32 world !\n\r");
     TestVerifySignature();
 
-  /* -- Sample board code to switch on leds ---- */
-  BSP_LED_On(LED_GREEN);
-  BSP_LED_On(LED_BLUE);
-  BSP_LED_On(LED_RED);
+    /* -- Sample board code to switch on leds ---- */
+    BSP_LED_On(LED_GREEN);
+    BSP_LED_On(LED_BLUE);
+    BSP_LED_On(LED_RED);
 
-  /* USER CODE END BSP */
+    /* USER CODE END BSP */
 
-  /* Start scheduler */
-  osKernelStart();
+    /* Start scheduler */
+    osKernelStart();
 
-  /* We should never get here as control is now taken by the scheduler */
+    /* We should never get here as control is now taken by the scheduler */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-
-    /* -- Sample board code for User push-button in interrupt mode ---- */
-    if (BspButtonState == BUTTON_PRESSED)
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
+    while (1)
     {
-      /* Update button state */
-      BspButtonState = BUTTON_RELEASED;
-      /* -- Sample board code to toggle leds ---- */
-      BSP_LED_Toggle(LED_GREEN);
-      BSP_LED_Toggle(LED_BLUE);
-      BSP_LED_Toggle(LED_RED);
 
-      /* ..... Perform your action ..... */
+        /* -- Sample board code for User push-button in interrupt mode ---- */
+        if (BspButtonState == BUTTON_PRESSED)
+        {
+            /* Update button state */
+            BspButtonState = BUTTON_RELEASED;
+            /* -- Sample board code to toggle leds ---- */
+            BSP_LED_Toggle(LED_GREEN);
+            BSP_LED_Toggle(LED_BLUE);
+            BSP_LED_Toggle(LED_RED);
+
+            /* ..... Perform your action ..... */
+        }
+        /* USER CODE END WHILE */
+
+        /* USER CODE BEGIN 3 */
     }
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-  }
-  /* USER CODE END 3 */
+    /* USER CODE END 3 */
 }
 
 /**
@@ -599,6 +602,68 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+static void OTG_FS_TUD_Init(void)
+{
+    RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
+    PeriphClkInit.IclkClockSelection = RCC_CLK48CLKSOURCE_HSI48;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    // GPIOとUSBクロック
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    /**USB_OTG_FS GPIO Configuration
+      PA11     ------> USB_OTG_FS_DM
+      PA12     ------> USB_OTG_FS_DP
+      */
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_11 | GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF10_USB;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /* Configure ID pin */
+    GPIO_InitStruct.Pin = GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Alternate = GPIO_AF10_USB;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+#if CFG_TUSB_OS == OPT_OS_FREERTOS
+    // If freeRTOS is used, IRQ priority is limit by max syscall ( smaller is higher )
+    NVIC_SetPriority(OTG_FS_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+#endif
+
+#if defined(OTG_FS_VBUS_SENSE) && OTG_FS_VBUS_SENSE
+    // Configure VBUS Pin OTG_FS_VBUS_SENSE
+    GPIO_InitStruct.Pin = GPIO_PIN_9;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    // Enable VBUS sense (B device) via pin PA9
+    USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_VBDEN;
+#else
+    // Disable VBUS sense (B device) via pin PA9
+    USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_VBDEN;
+
+    // B-peripheral session valid override enable
+    USB_OTG_FS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOEN;
+    USB_OTG_FS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOVAL;
+#endif // vbus sense
+
+    /* Enable USB power on Pwrctrl CR2 register */
+    HAL_PWREx_EnableVddUSB();
+
+    /* Peripheral clock enable */
+    __HAL_RCC_USB_CLK_ENABLE();
+
+}
 
 /* USER CODE END 4 */
 
