@@ -90,51 +90,51 @@ static void OTG_FS_TUD_Init(void);
 int main(void)
 {
 
-    /* USER CODE BEGIN 1 */
+  /* USER CODE BEGIN 1 */
 
-    /* USER CODE END 1 */
+  /* USER CODE END 1 */
 
-    /* MCU Configuration--------------------------------------------------------*/
+  /* MCU Configuration--------------------------------------------------------*/
 
-    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-    HAL_Init();
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
 
-    /* USER CODE BEGIN Init */
+  /* USER CODE BEGIN Init */
     InitUserSetting();
 
-    /* USER CODE END Init */
+  /* USER CODE END Init */
 
-    /* Configure the System Power */
-    SystemPower_Config();
+  /* Configure the System Power */
+  SystemPower_Config();
 
-    /* Configure the system clock */
-    SystemClock_Config();
+  /* Configure the system clock */
+  SystemClock_Config();
 
-    /* USER CODE BEGIN SysInit */
+  /* USER CODE BEGIN SysInit */
 
-    /* USER CODE END SysInit */
+  /* USER CODE END SysInit */
 
-    /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    MX_GPDMA1_Init();
-    MX_USART1_UART_Init();
-    MX_ICACHE_Init();
-    MX_SPI1_Init();
-    MX_SPI2_Init();
-    /* USER CODE BEGIN 2 */
-    // tinyUSB側ではHALによる制御を想定していない
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_GPDMA1_Init();
+  MX_USART1_UART_Init();
+  MX_ICACHE_Init();
+  MX_SPI1_Init();
+  MX_SPI2_Init();
+  /* USER CODE BEGIN 2 */
     /* MX_USB_OTG_FS_PCD_Init(); */
+    // tinyUSB側ではHALによる制御を想定していない-> MX_USB_OTG_FS_PCD_Initは呼ばない
     OTG_FS_TUD_Init();
     uart_init();
-    /* USER CODE END 2 */
+  /* USER CODE END 2 */
 
-    /* Init scheduler */
-    osKernelInitialize();
+  /* Init scheduler */
+  osKernelInitialize();
 
-    /* Call init function for freertos objects (in app_freertos.c) */
-    MX_FREERTOS_Init();
+  /* Call init function for freertos objects (in app_freertos.c) */
+  MX_FREERTOS_Init();
 
-    /* USER CODE BEGIN BSP */
+  /* USER CODE BEGIN BSP */
 
     /* -- Sample board code to send message over COM1 port ---- */
     uart_printf(DBG_LVL_ERROR, "Welcome to STM32 world !\n\r");
@@ -145,15 +145,15 @@ int main(void)
     BSP_LED_On(LED_BLUE);
     BSP_LED_On(LED_RED);
 
-    /* USER CODE END BSP */
+  /* USER CODE END BSP */
 
-    /* Start scheduler */
-    osKernelStart();
+  /* Start scheduler */
+  osKernelStart();
 
-    /* We should never get here as control is now taken by the scheduler */
+  /* We should never get here as control is now taken by the scheduler */
 
-    /* Infinite loop */
-    /* USER CODE BEGIN WHILE */
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
     while (1)
     {
 
@@ -169,11 +169,11 @@ int main(void)
 
             /* ..... Perform your action ..... */
         }
-        /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-        /* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
     }
-    /* USER CODE END 3 */
+  /* USER CODE END 3 */
 }
 
 /**
@@ -221,8 +221,8 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK3;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB3CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
@@ -350,7 +350,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
