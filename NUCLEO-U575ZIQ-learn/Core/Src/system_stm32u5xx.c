@@ -218,7 +218,7 @@ void SystemInit(void)
   /* Disable all interrupts */
   RCC->CIER = 0U;
 
-#if 1
+#if 0
     SCB->VTOR = (0x08002000) | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #else
   /* Configure the Vector Table location add offset address ------------------*/
