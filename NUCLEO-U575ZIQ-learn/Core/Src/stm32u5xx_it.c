@@ -240,15 +240,20 @@ void TIM17_IRQHandler(void)
   /* USER CODE END TIM17_IRQn 1 */
 }
 
-/* USER CODE BEGIN OTG_FS_IRQn 0 */
 /**
   * @brief This function handles USB OTG FS global interrupt.
   */
 void OTG_FS_IRQHandler(void)
 {
+  /* USER CODE BEGIN OTG_FS_IRQn 0 */
     tud_int_handler(0);
+    return; // ignore generated code
+  /* USER CODE END OTG_FS_IRQn 0 */
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
+  /* USER CODE BEGIN OTG_FS_IRQn 1 */
+
+  /* USER CODE END OTG_FS_IRQn 1 */
 }
-/* USER CODE END OTG_FS_IRQn 0 */
 
 /**
   * @brief This function handles GPDMA1 Channel 10 global interrupt.
