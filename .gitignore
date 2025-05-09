@@ -1,7 +1,7 @@
 NUCLEO-U575ZIQ-learn/Debug/*
 NUCLEO-U575ZIQ-learn/Release/*
 NUCLEO-U575ZIQ-learn/.settings/*
-NUCLEO-U575ZIQ-learn/NUCLEO-U575ZIQ-learn Debug.launch
+NUCLEO-U575ZIQ-learn/*launch
 NUCLEO-U575ZIQ-learn/tags
 NUCLEO-U575ZIQ-learn/.clangd
 documents/*
