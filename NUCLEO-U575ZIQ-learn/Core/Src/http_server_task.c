@@ -10,6 +10,11 @@
 #define SOCK_HTTP_SERVER 0
 #define LISTEN_PORT 80
 
+#define MAX_RETRY 3
+#define HTTP_RECV_TIMEOUT_MS 3000  // タイムアウト（ミリ秒）
+#define HTTP_RECV_POLL_INTERVAL_MS 10  // ポーリング間隔
+static int SocketOpen(void);
+
 uint8_t recv_buf[1024];
 
 extern SPI_HandleTypeDef hspi1;
@@ -92,6 +97,28 @@ void W5500_Init()
     }
 }
 
+static int SocketOpen(void)
+{
+    int retry = 0;
+
+    while (retry < MAX_RETRY) {
+        if (socket(SOCK_HTTP_SERVER, Sn_MR_TCP, LISTEN_PORT, 0) == SOCK_HTTP_SERVER) {
+            if (listen(SOCK_HTTP_SERVER) == SOCK_OK) {
+                uart_printf(DBG_LVL_DBG, "Socket opened and listening on port %d\n", LISTEN_PORT);
+                return 0; // Success
+            }
+            close(SOCK_HTTP_SERVER);
+        }
+
+        uart_printf(DBG_LVL_WARN, "Socket open/listen failed, retrying... (%d/%d)\n", retry + 1, MAX_RETRY);
+        retry++;
+        osDelay(500);
+    }
+
+    uart_printf(DBG_LVL_ERROR, "Socket open failed after %d retries\n", MAX_RETRY);
+    return -1;  // Fail
+}
+
 void HTTPServerTaskProc(void *argument)
 {
     int32_t ret;
@@ -107,21 +134,7 @@ void HTTPServerTaskProc(void *argument)
 
     W5500_Init();
 
-    /* ソケットオープン */
-    if (socket(SOCK_HTTP_SERVER, Sn_MR_TCP, LISTEN_PORT, 0) != SOCK_HTTP_SERVER)
-    {
-        uart_printf(DBG_LVL_DBG, "Socket open failed\r\n");
-        for(;;);
-    }
-
-    /* リッスン開始 */
-    if (listen(SOCK_HTTP_SERVER) != SOCK_OK)
-    {
-        uart_printf(DBG_LVL_DBG, "Listen failed\r\n");
-        close(SOCK_HTTP_SERVER);
-        for(;;);
-    }
-    uart_printf(DBG_LVL_DBG, "Listening on port %d\r\n", LISTEN_PORT);
+    SocketOpen();
 
     for(;;)
     {
@@ -130,7 +143,25 @@ void HTTPServerTaskProc(void *argument)
         {
             uart_printf(DBG_LVL_DBG, "Client connected!\r\n");
 
-            /* 受信待ち */
+            // タイムアウト処理付きの受信待ち
+            uint32_t wait_time = 0;
+            while (getSn_RX_RSR(SOCK_HTTP_SERVER) == 0 && wait_time < HTTP_RECV_TIMEOUT_MS) {
+                osDelay(HTTP_RECV_POLL_INTERVAL_MS);
+                wait_time += HTTP_RECV_POLL_INTERVAL_MS;
+
+                // 接続が切れたら抜ける
+                if (getSn_SR(SOCK_HTTP_SERVER) != SOCK_ESTABLISHED) {
+                    uart_printf(DBG_LVL_WARN, "Client disconnected before sending data\r\n");
+                    goto socket_close_and_listen;
+                }
+            }
+
+            if (wait_time >= HTTP_RECV_TIMEOUT_MS) {
+                uart_printf(DBG_LVL_WARN, "Receive timeout, disconnecting client\r\n");
+                goto socket_close_and_listen;
+            }
+
+            // データ受信
             ret = recv(SOCK_HTTP_SERVER, recv_buf, sizeof(recv_buf)-1);
             if (ret > 0)
             {
@@ -156,17 +187,20 @@ void HTTPServerTaskProc(void *argument)
                 }
                 else
                 {
-                    // POST以外の場合はここ
+                    // GET等他の処理
                 }
-
-                // 一回ごとにソケットを閉じて再Listen
-                disconnect(SOCK_HTTP_SERVER);
-                uart_printf(DBG_LVL_DBG, "Client disconnected, listening again...\r\n");
-
-                listen(SOCK_HTTP_SERVER);
             }
-        }
+            else
+            {
+                uart_printf(DBG_LVL_WARN, "recv returned %d, no data received\r\n", ret);
+            }
 
+socket_close_and_listen:
+            disconnect(SOCK_HTTP_SERVER);
+            uart_printf(DBG_LVL_DBG, "Client disconnected, listening again...\r\n");
+
+            SocketOpen();
+        }
         osDelay(10);  // 軽く待つ
     }
 }
