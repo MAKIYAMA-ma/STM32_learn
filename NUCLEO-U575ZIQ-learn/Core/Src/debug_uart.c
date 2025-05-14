@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 // リングバッファサイズ
-#define UART_TX_RINGBUF_SIZE   512
+#define UART_TX_RINGBUF_SIZE   1024
 #define UART_RX_LINEBUF_SIZE   128
 
 typedef void (*CommandCallback)(const uint8_t *params);
