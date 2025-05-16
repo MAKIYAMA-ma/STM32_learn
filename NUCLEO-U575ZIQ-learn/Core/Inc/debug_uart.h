@@ -35,8 +35,8 @@ typedef enum {
     DBG_CMD_NUM,
 } EN_DBG_CMD;
 
-void uart_init();
-void uart_printf(EN_DBG_LEVEL lvl, const char *fmt, ...);
+void log_init();
+void log_printf(EN_DBG_LEVEL lvl, const char *fmt, ...);
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 

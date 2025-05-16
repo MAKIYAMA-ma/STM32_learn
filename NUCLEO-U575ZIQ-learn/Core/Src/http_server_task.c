@@ -36,7 +36,7 @@ void W5500_ReadBuff(uint8_t* buff, uint16_t len)
         return;
     }
     if (xSemaphoreTake(spi1RxDoneSem, portMAX_DELAY) != pdTRUE) {
-        uart_printf(DBG_LVL_DBG, "SPI Master DMA tx timeout\n");
+        log_printf(DBG_LVL_DBG, "SPI Master DMA tx timeout\n");
     }
 }
 
@@ -47,7 +47,7 @@ void W5500_WriteBuff(uint8_t* buff, uint16_t len)
         return;
     }
     if (xSemaphoreTake(spi1TxDoneSem, portMAX_DELAY) != pdTRUE) {
-        uart_printf(DBG_LVL_DBG, "SPI Master DMA rx timeout\n");
+        log_printf(DBG_LVL_DBG, "SPI Master DMA rx timeout\n");
     }
 }
 
@@ -65,8 +65,8 @@ void W5500_WriteByte(uint8_t data)
 
 void W5500_Init()
 {
-    uart_printf(DBG_LVL_DBG, "W5500_Init() called!\n");
-    uart_printf(DBG_LVL_DBG, "Registering W5500 callbacks...\r\n");
+    log_printf(DBG_LVL_DBG, "W5500_Init() called!\n");
+    log_printf(DBG_LVL_DBG, "Registering W5500 callbacks...\r\n");
 
     reg_wizchip_cs_cbfunc(W5500_Select, W5500_Unselect);
     reg_wizchip_spi_cbfunc(W5500_ReadByte, W5500_WriteByte);
@@ -91,9 +91,9 @@ void W5500_Init()
 
     uint8_t ver = getVERSIONR();  // WIZnet ioLibrary を使っている前提
     if (ver == 0x04) {
-        uart_printf(DBG_LVL_DBG, "W5500 Version: 0x%02X (OK)\n", ver);
+        log_printf(DBG_LVL_DBG, "W5500 Version: 0x%02X (OK)\n", ver);
     } else {
-        uart_printf(DBG_LVL_ERROR, "W5500 Version: 0x%02X (NG)\n", ver);
+        log_printf(DBG_LVL_ERROR, "W5500 Version: 0x%02X (NG)\n", ver);
     }
 }
 
@@ -104,18 +104,18 @@ static int SocketOpen(void)
     while (retry < MAX_RETRY) {
         if (socket(SOCK_HTTP_SERVER, Sn_MR_TCP, LISTEN_PORT, 0) == SOCK_HTTP_SERVER) {
             if (listen(SOCK_HTTP_SERVER) == SOCK_OK) {
-                uart_printf(DBG_LVL_DBG, "Socket opened and listening on port %d\n", LISTEN_PORT);
+                log_printf(DBG_LVL_DBG, "Socket opened and listening on port %d\n", LISTEN_PORT);
                 return 0; // Success
             }
             close(SOCK_HTTP_SERVER);
         }
 
-        uart_printf(DBG_LVL_WARN, "Socket open/listen failed, retrying... (%d/%d)\n", retry + 1, MAX_RETRY);
+        log_printf(DBG_LVL_WARN, "Socket open/listen failed, retrying... (%d/%d)\n", retry + 1, MAX_RETRY);
         retry++;
         osDelay(500);
     }
 
-    uart_printf(DBG_LVL_ERROR, "Socket open failed after %d retries\n", MAX_RETRY);
+    log_printf(DBG_LVL_ERROR, "Socket open failed after %d retries\n", MAX_RETRY);
     return -1;  // Fail
 }
 
@@ -128,7 +128,7 @@ void HTTPServerTaskProc(void *argument)
     spi1TxDoneSem = xSemaphoreCreateBinary();
     spi1RxDoneSem = xSemaphoreCreateBinary();
     if (spi1TxDoneSem == NULL || spi1RxDoneSem == NULL) {
-        uart_printf(DBG_LVL_ERROR, "Failed to create SPI Master semaphore\n");
+        log_printf(DBG_LVL_ERROR, "Failed to create SPI Master semaphore\n");
         vTaskDelete(NULL);
     }
 
@@ -141,7 +141,7 @@ void HTTPServerTaskProc(void *argument)
         /* 接続待ち */
         if (getSn_SR(SOCK_HTTP_SERVER) == SOCK_ESTABLISHED)
         {
-            uart_printf(DBG_LVL_DBG, "Client connected!\r\n");
+            log_printf(DBG_LVL_DBG, "Client connected!\r\n");
 
             // タイムアウト処理付きの受信待ち
             uint32_t wait_time = 0;
@@ -151,13 +151,13 @@ void HTTPServerTaskProc(void *argument)
 
                 // 接続が切れたら抜ける
                 if (getSn_SR(SOCK_HTTP_SERVER) != SOCK_ESTABLISHED) {
-                    uart_printf(DBG_LVL_WARN, "Client disconnected before sending data\r\n");
+                    log_printf(DBG_LVL_WARN, "Client disconnected before sending data\r\n");
                     goto socket_close_and_listen;
                 }
             }
 
             if (wait_time >= HTTP_RECV_TIMEOUT_MS) {
-                uart_printf(DBG_LVL_WARN, "Receive timeout, disconnecting client\r\n");
+                log_printf(DBG_LVL_WARN, "Receive timeout, disconnecting client\r\n");
                 goto socket_close_and_listen;
             }
 
@@ -166,7 +166,7 @@ void HTTPServerTaskProc(void *argument)
             if (ret > 0)
             {
                 recv_buf[ret] = '\0';  // 文字列終端
-                uart_printf(DBG_LVL_DBG, "Received HTTP data:\r\n%s\r\n", recv_buf);
+                log_printf(DBG_LVL_DBG, "Received HTTP data:\r\n%s\r\n", recv_buf);
 
                 /* HTTPリクエスト解析 */
                 if (strstr((char*)recv_buf, "POST") != NULL)
@@ -183,7 +183,7 @@ void HTTPServerTaskProc(void *argument)
                         "Post received";
 
                     send(SOCK_HTTP_SERVER, (uint8_t*)http_response, sizeof(http_response)-1);
-                    uart_printf(DBG_LVL_DBG, "Sent HTTP 200 OK response\r\n");
+                    log_printf(DBG_LVL_DBG, "Sent HTTP 200 OK response\r\n");
                 }
                 else
                 {
@@ -192,12 +192,12 @@ void HTTPServerTaskProc(void *argument)
             }
             else
             {
-                uart_printf(DBG_LVL_WARN, "recv returned %d, no data received\r\n", ret);
+                log_printf(DBG_LVL_WARN, "recv returned %d, no data received\r\n", ret);
             }
 
 socket_close_and_listen:
             disconnect(SOCK_HTTP_SERVER);
-            uart_printf(DBG_LVL_DBG, "Client disconnected, listening again...\r\n");
+            log_printf(DBG_LVL_DBG, "Client disconnected, listening again...\r\n");
 
             SocketOpen();
         }

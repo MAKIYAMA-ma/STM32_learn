@@ -16,7 +16,7 @@ void SPILoopTaskProc(void *argument)
 {
     spiDoneSem = xSemaphoreCreateBinary();
     if (spiDoneSem == NULL) {
-        uart_printf(DBG_LVL_ERROR, "Failed to create SPI semaphore\n");
+        log_printf(DBG_LVL_ERROR, "Failed to create SPI semaphore\n");
         vTaskDelete(NULL);
     }
 
@@ -25,29 +25,29 @@ void SPILoopTaskProc(void *argument)
 
 #if 1   // use DMA
         if (HAL_SPI_TransmitReceive_DMA(&hspi1, txBuf, rxBuf, SPI_BUF_SIZE) != HAL_OK) {
-            uart_printf(DBG_LVL_ERROR, "SPI DMA start failed\n");
+            log_printf(DBG_LVL_ERROR, "SPI DMA start failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }
 
         if (xSemaphoreTake(spiDoneSem, pdMS_TO_TICKS(1000)) == pdTRUE) {
             if (memcmp(txBuf, rxBuf, SPI_BUF_SIZE) == 0) {
-                uart_printf(DBG_LVL_DBG, "SPI loopback OK: %s\n", rxBuf);
+                log_printf(DBG_LVL_DBG, "SPI loopback OK: %s\n", rxBuf);
             } else {
-                uart_printf(DBG_LVL_DBG, "SPI loopback failed!\n");
+                log_printf(DBG_LVL_DBG, "SPI loopback failed!\n");
             }
         } else {
-            uart_printf(DBG_LVL_DBG, "SPI DMA timeout\n");
+            log_printf(DBG_LVL_DBG, "SPI DMA timeout\n");
         }
 #else
         if (HAL_SPI_TransmitReceive(&hspi1, txBuf, rxBuf, SPI_BUF_SIZE, HAL_MAX_DELAY) == HAL_OK) {
             if (memcmp(txBuf, rxBuf, SPI_BUF_SIZE) == 0) {
-                uart_printf(DBG_LVL_DBG, "SPI loopback OK: %s\n", rxBuf);
+                log_printf(DBG_LVL_DBG, "SPI loopback OK: %s\n", rxBuf);
             } else {
-                uart_printf(DBG_LVL_DBG, "SPI loopback failed!\n");
+                log_printf(DBG_LVL_DBG, "SPI loopback failed!\n");
             }
         } else {
-            uart_printf(DBG_LVL_DBG, "SPI Master failed\n");
+            log_printf(DBG_LVL_DBG, "SPI Master failed\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }

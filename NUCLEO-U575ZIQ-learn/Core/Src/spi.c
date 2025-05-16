@@ -53,8 +53,8 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
     if (hspi->Instance == SPI1) {
-        uart_printf(DBG_LVL_ERROR, "SPI Master Error: 0x%lx\n", hspi->ErrorCode);
+        log_printf(DBG_LVL_ERROR, "SPI Master Error: 0x%lx\n", hspi->ErrorCode);
     } else if (hspi->Instance == SPI2) {
-        uart_printf(DBG_LVL_ERROR, "SPI Slave Error: 0x%lx\n", hspi->ErrorCode);
+        log_printf(DBG_LVL_ERROR, "SPI Slave Error: 0x%lx\n", hspi->ErrorCode);
     }
 }

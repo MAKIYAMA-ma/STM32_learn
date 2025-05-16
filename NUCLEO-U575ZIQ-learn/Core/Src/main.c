@@ -125,7 +125,7 @@ int main(void)
     /* MX_USB_OTG_FS_PCD_Init(); */
     // tinyUSB側ではHALによる制御を想定していない-> MX_USB_OTG_FS_PCD_Initは呼ばない
     OTG_FS_TUD_Init();
-    uart_init();
+    log_init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -137,7 +137,7 @@ int main(void)
   /* USER CODE BEGIN BSP */
 
     /* -- Sample board code to send message over COM1 port ---- */
-    uart_printf(DBG_LVL_ERROR, "Welcome to STM32 world !\n\r");
+    log_printf(DBG_LVL_ERROR, "Welcome to STM32 world !\n\r");
     TestVerifySignature();
 
     /* -- Sample board code to switch on leds ---- */

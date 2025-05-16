@@ -39,12 +39,12 @@ static uint8_t uartRxByteBuf;
 static uint8_t uartRxLineBuf[UART_RX_LINEBUF_SIZE];
 static volatile uint16_t uartRxLineLen = 0;
 
-void uart_init()
+void log_init()
 {
     HAL_UART_Receive_IT(&huart1, &uartRxByteBuf, 1); // 1バイトずつ受信開始
 }
 
-void uart_printf(EN_DBG_LEVEL lvl, const char *fmt, ...)
+void log_printf(EN_DBG_LEVEL lvl, const char *fmt, ...)
 {
     va_list args;
 
@@ -97,7 +97,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             if (ch == '\n') {
                 uartRxLineBuf[uartRxLineLen] = '\0'; // null terminate
                 // TODO 一行受信完了
-                uart_printf(DBG_LVL_ERROR, "Received Line: %s", uartRxLineBuf);
+                log_printf(DBG_LVL_ERROR, "Received Line: %s", uartRxLineBuf);
                 for (int i = 0; i < NUM_COMMANDS; i++) {
                     size_t cmdLen = strlen(commands[i].commandStr);
                     if (strncmp((char *)uartRxLineBuf, commands[i].commandStr, cmdLen) == 0) {
