@@ -627,13 +627,6 @@ static void OTG_FS_TUD_Init(void)
     GPIO_InitStruct.Alternate = GPIO_AF10_USB;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /* Configure ID pin */
-    GPIO_InitStruct.Pin = GPIO_PIN_10;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Alternate = GPIO_AF10_USB;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
 #if CFG_TUSB_OS == OPT_OS_FREERTOS
     // If freeRTOS is used, IRQ priority is limit by max syscall ( smaller is higher )
     NVIC_SetPriority(OTG_FS_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
